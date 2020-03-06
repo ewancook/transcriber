@@ -2,6 +2,13 @@ class FileSelecter:
     def __init__(self, view):
         self.view = view
 
+    @property
+    def filenames(self):
+        return self.view.filenames()
+
+    def show(self):
+        self.view.show()
+
     def disable(self):
         self.view.disable()
 

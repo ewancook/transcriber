@@ -7,15 +7,23 @@ class FileSelecterView(QtWidgets.QWidget):
         self._layout = QtWidgets.QVBoxLayout()
 
         self.files = QtWidgets.QListWidget(self)
-        self.add_file = QtWidgets.QPushButton("Select CSV File(s)", self)
-        self.del_file = QtWidgets.QPushButton("Deselect File", self)
+        self.add_file = QtWidgets.QPushButton("Browse", self)
+        self.del_file = QtWidgets.QPushButton("Remove", self)
         self.del_file.setEnabled(False)
 
-        self._layout.addWidget(self.add_file)
+        self.connect_del_clicked(self.del_current)
+        self.connect_current_changed(self.enable_deletion)
+
+        self._layout.addWidget(QtWidgets.QLabel("Loaded:"))
         self._layout.addWidget(self.files)
+        self._layout.addWidget(self.add_file)
         self._layout.addWidget(self.del_file)
 
+        self.setWindowTitle("Load CSV File(s)")
         self.setLayout(self._layout)
+
+    def filenames(self):
+        return [self.files.item(i).text() for i in range(self.files.count())]
 
     def add_files(self, files):
         self.files.addItems(files)
@@ -33,7 +41,7 @@ class FileSelecterView(QtWidgets.QWidget):
     def enable(self):
         self.add_file.setEnabled(True)
         self.del_file.setEnabled(True)
-        self.files.setEnabled(False)
+        self.files.setEnabled(True)
 
     def enable_deletion(self):
         self.del_file.setEnabled(True)
