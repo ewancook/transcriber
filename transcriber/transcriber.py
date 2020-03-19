@@ -9,7 +9,7 @@ from transcriber.tag_selecter.model import TagSelecterModel
 
 from transcriber.converter.presenter import Converter
 from transcriber.converter.view import ConverterView
-from transcriber.converter.model import ConverterModel
+from transcriber.converter.multithreading_model import MultiThreadingConverterModel
 
 from PyQt5 import QtWidgets, QtCore
 
@@ -27,7 +27,7 @@ class Transcriber(QtWidgets.QMainWindow):
         self.tag_selecter.connect_tag_added(self.check_run)
         self.tag_selecter.connect_tag_deleted(self.check_run)
 
-        self.run_widget = Converter(ConverterView(), ConverterModel())
+        self.run_widget = Converter(ConverterView(), MultiThreadingConverterModel())
         self.run_widget.connect_run_clicked(self.run_widget.reset_progress)
         self.run_widget.connect_run_clicked(self.convert)
         self.run_widget.connect_conversion_started(self.disable_all)
