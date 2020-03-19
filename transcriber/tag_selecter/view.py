@@ -1,6 +1,10 @@
 from PyQt5 import QtWidgets, QtCore
 
+
 class TagSelecterView(QtWidgets.QWidget):
+    tag_added = QtCore.pyqtSignal()
+    tag_deleted = QtCore.pyqtSignal()
+
     def __init__(self):
         super(TagSelecterView, self).__init__()
 
@@ -14,10 +18,14 @@ class TagSelecterView(QtWidgets.QWidget):
         self.add_tag.setEnabled(False)
         self.del_tag.setEnabled(False)
 
-        self.connect_add_clicked(self.add_current)
-        self.connect_del_clicked(self.del_current)
-        self.connect_current_all_changed(self.enable_addition)
-        self.connect_current_new_changed(self.enable_deletion)
+        self.tags.itemDoubleClicked.connect(self.add_item)
+        self.tags.currentItemChanged.connect(self.enable_addition)
+
+        self.used.itemDoubleClicked.connect(self.del_item)
+        self.used.currentItemChanged.connect(self.enable_deletion)
+
+        self.add_tag.clicked.connect(self.add_current)
+        self.del_tag.clicked.connect(self.del_current)
 
         left = QtWidgets.QVBoxLayout()
         right = QtWidgets.QVBoxLayout()
@@ -37,41 +45,40 @@ class TagSelecterView(QtWidgets.QWidget):
         self._layout.addWidget(self.load)
         self._layout.addWidget(QtWidgets.QLabel())
         self._layout.addLayout(horizontal)
-
-        self.setWindowTitle("Select Tags")
         self.setLayout(self._layout)
+
+    def add_item(self, item):
+        tag = item.text()
+        if tag not in self.active_tags():
+            self.used.addItem(tag)
+        self.tag_added.emit()
+
+    def del_item(self, item):
+        self.used.takeItem(self.used.row(item))
+        if not self.used.count():
+            self.disable_deletion()
+        self.tag_deleted.emit()
 
     def active_tags(self):
         return [self.used.item(i).text() for i in range(self.used.count())]
 
     def add_current(self):
-        tag = self.tags.item(self.tags.currentRow())
-        self.used.addItem(tag.text())
+        self.add_item(self.tags.item(self.tags.currentRow()))
 
     def del_current(self):
-        self.used.takeItem(self.used.currentRow())
-        if not self.used.count():
-                self.del_tag.setEnabled(False)
-
-    def disable(self):
-        self.add_tag.setEnabled(False)
-        self.del_tag.setEnabled(False)
-        self.load.setEnabled(False)
-        self.tags.setEnabled(False)
-        self.used.setEnabled(False)
-
-    def enable(self):
-        self.add_tag.setEnabled(True)
-        self.del_tag.setEnabled(True)
-        self.load.setEnabled(True)
-        self.tags.setEnabled(True)
-        self.used.setEnabled(True)
+        self.del_item(self.used.currentItem())
 
     def enable_deletion(self):
         self.del_tag.setEnabled(True)
 
+    def disable_deletion(self):
+        self.del_tag.setEnabled(False)
+
     def enable_addition(self):
         self.add_tag.setEnabled(True)
+
+    def disable_addition(self):
+        self.add_tag.setEnabled(False)
 
     def set_all(self, tags):
         self.tags.addItems(tags)
@@ -88,26 +95,14 @@ class TagSelecterView(QtWidgets.QWidget):
     def disconnect_load_clicked(self, slot):
         self.load.clicked.disconnect(slot)
 
-    def connect_add_clicked(self, slot):
-        self.add_tag.clicked.connect(slot)
+    def connect_tag_added(self, slot):
+        self.tag_added.connect(slot)
 
-    def disconnect_add_clicked(self, slot):
-        self.add_tag.clicked.disconnect(slot)
+    def disconnect_tag_added(self, slot):
+        self.tag_added.disconnect(slot)
 
-    def connect_del_clicked(self, slot):
-        self.del_tag.clicked.connect(slot)
+    def connect_tag_deleted(self, slot):
+        self.tag_deleted.connect(slot)
 
-    def disconnect_del_clicked(self, slot):
-        self.del_tag.clicked.disconnect(slot)
-
-    def connect_current_all_changed(self, slot):
-        self.tags.currentItemChanged.connect(slot)
-
-    def disconnect_current_all_changed(self, slot):
-        self.tags.currentItemChanged.disconnect(slot)
-
-    def connect_current_new_changed(self, slot):
-        self.used.currentItemChanged.connect(slot)
-
-    def disconnect_current_new_changed(self, slot):
-        self.used.currentItemChanged.disconnect(slot)
+    def disconnect_tag_deleted(self, slot):
+        self.tag_deleted.disconnect(slot)

@@ -11,11 +11,10 @@ class TagSelecter:
     def active_tags(self):
         return self.view.active_tags()
 
-    def show(self):
-        self.view.show()
-
     def load_file(self, filename):
         self.model.load(filename)
+        self.view.disable_deletion()
+        self.view.disable_addition()
 
     def add_tag(self):
         self.view.add_tag()
@@ -23,17 +22,17 @@ class TagSelecter:
     def del_current(self):
         self.view.del_current()
 
-    def disable(self):
-        self.view.disable()
-
-    def enable(self):
-        self.view.enable()
-
     def enable_deletion(self):
         self.view.enable_deletion()
 
+    def disable_deletion(self):
+        self.view.disable_deletion()
+
     def enable_addition(self):
         self.view.enable_addition()
+
+    def disable_addition(self):
+        self.view.disable_addition()
 
     def set_all(self, tags):
         self.view.set_all(tags)
@@ -50,26 +49,14 @@ class TagSelecter:
     def disconnect_load_clicked(self, slot):
         self.view.disconnect_load_clicked(slot)
 
-    def connect_add_clicked(self, slot):
-        self.view.connect_add_clicked(slot)
+    def connect_tag_added(self, slot):
+        self.view.connect_tag_added(slot)
 
-    def disconnect_add_clicked(self, slot):
-        self.view.disconnect_add_clicked(slot)
+    def disconnect_tag_added(self, slot):
+        self.view.disconnect_tag_added(slot)
 
-    def connect_del_clicked(self, slot):
-        self.view.connect_del_clicked(slot)
+    def connect_tag_deleted(self, slot):
+        self.view.connect_tag_deleted(slot)
 
-    def disconnect_del_clicked(self, slot):
-        self.view.disconnect_del_clicked(slot)
-
-    def connect_current_all_changed(self, slot):
-        self.view.connect_current_all_changed(slot)
-
-    def disconnect_current_all_changed(self, slot):
-        self.view.disconnect_current_all_changed(slot)
-
-    def connect_current_new_changed(self, slot):
-        self.view.connect_current_new_changed(slot)
-
-    def disconnect_current_new_changed(self, slot):
-        self.view.disconnect_current_new_changed(slot)
+    def disconnect_tag_deleted(self, slot):
+        self.view.disconnect_tag_deleted(slot)

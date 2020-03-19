@@ -6,15 +6,6 @@ class FileSelecter:
     def filenames(self):
         return self.view.filenames()
 
-    def show(self):
-        self.view.show()
-
-    def disable(self):
-        self.view.disable()
-
-    def enable(self):
-        self.view.enable()
-
     def add_files(self, files):
         self.view.add_files(files)
 
