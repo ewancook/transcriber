@@ -8,8 +8,17 @@ def data_from_line(line):
     return date, time, tag.strip(), val.strip()
 
 
+def flip_date(date):
+    month, day, year = date.split("/")
+    return "{}/{}/{}".format(day, month, year)
+
+
 def create_worker(filename, tags, total_tags):
     return ConverterWorker(filename, tags, total_tags)
+
+
+def transcribed_filename(filename):
+    return "{} (Transcribed).csv".format(filename.rsplit(".")[0])
 
 
 class ConverterWorkerSignals(QtCore.QObject):
@@ -52,9 +61,9 @@ class ConverterWorker(QtCore.QRunnable):
                 if tag in self.tags:
                     order.append(tag)
                     vals.append(val)
-            first_data = "{},{},{}".format(date, time, ",".join(vals))
-            name = "{} (Transcribed).csv".format(self.filename.rsplit(".")[0])
-            with open(name, "w") as out:
+            first_data = "{},{},{}".format(
+                flip_date(date), time, ",".join(vals))
+            with open(transcribed_filename(self.filename), "w") as out:
                 self.transpose(f, order, out, first_data)
 
     def transpose(self, file, tags, out, first_data):
@@ -66,8 +75,7 @@ class ConverterWorker(QtCore.QRunnable):
             if tag not in tags:
                 continue
             if tags_written == num_tags:
-                out.write("\n")
-                out.write("{},{},{}".format(date, time, val))
+                out.write("\n{},{},{}".format(flip_date(date), time, val))
                 tags_written = 1
             else:
                 out.write(",{}".format(val))
