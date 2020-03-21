@@ -25,7 +25,7 @@ class Collator(QtCore.QObject):
             for filename in filenames[1:]:
                 collated.write("\n")
                 with open(utils.transcribed_filename(filename), "r") as f:
-                    for line in islice(f, 1, None):
+                    for line in islice(f, 2, None):
                         collated.write(line)
         self.collation_finished.emit()
 

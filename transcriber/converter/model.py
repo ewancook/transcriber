@@ -36,7 +36,7 @@ class ConverterModel(QtCore.QObject):
         self.conversion_error.disconnect(slot)
 
     def connect_conversion_update(self, slot):
-        self.conversion_update.connect(slot)  # , QtCore.Qt.DirectConnection)
+        self.conversion_update.connect(slot)
 
     def disconnect_conversion_update(self, slot):
         self.conversion_update.disconnect(slot)
