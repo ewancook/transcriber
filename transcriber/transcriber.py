@@ -1,16 +1,16 @@
 from multiprocessing import cpu_count
 
-from transcriber.file_selecter.presenter import FileSelecter
-from transcriber.file_selecter.view import FileSelecterView
+from transcriber.transcriber.file_selecter.presenter import FileSelecter
+from transcriber.transcriber.file_selecter.view import FileSelecterView
 
-from transcriber.tag_selecter.presenter import TagSelecter
-from transcriber.tag_selecter.view import TagSelecterView
-from transcriber.tag_selecter.model import TagSelecterModel
+from transcriber.transcriber.tag_selecter.presenter import TagSelecter
+from transcriber.transcriber.tag_selecter.view import TagSelecterView
+from transcriber.transcriber.tag_selecter.model import TagSelecterModel
 
-from transcriber.converter.presenter import Converter
-from transcriber.converter.view import ConverterView
-from transcriber.converter.multithreading_model import MultiThreadingConverterModel
-from transcriber.converter.collator import Collator
+from transcriber.transcriber.converter.presenter import Converter
+from transcriber.transcriber.converter.view import ConverterView
+from transcriber.transcriber.converter.multithreading_model import MultiThreadingConverterModel
+from transcriber.transcriber.converter.collator import Collator
 
 from PyQt5 import QtWidgets, QtCore
 
@@ -54,13 +54,15 @@ class Transcriber(QtWidgets.QMainWindow):
         self.setWindowTitle("Transcriber")
 
     def load_csv(self):
-        filenames, _ = QtWidgets.QFileDialog.getOpenFileNames(filter="CSV (*.csv)")
+        filenames, _ = QtWidgets.QFileDialog.getOpenFileNames(
+            filter="CSV (*.csv)")
         if filenames:
             self.file_selecter.add_files(filenames)
             self.check_run()
 
     def load_tag_file(self):
-        filename, _ = QtWidgets.QFileDialog.getOpenFileName(filter="CSV (*.csv)")
+        filename, _ = QtWidgets.QFileDialog.getOpenFileName(
+            filter="CSV (*.csv)")
         if filename:
             self.tag_selecter.load_file(filename)
             self.tag_selecter.clear_all()
