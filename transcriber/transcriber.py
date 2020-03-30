@@ -54,13 +54,13 @@ class Transcriber(QtWidgets.QMainWindow):
         self.setWindowTitle("Transcriber")
 
     def load_csv(self):
-        filenames, _ = QtWidgets.QFileDialog.getOpenFileNames()
+        filenames, _ = QtWidgets.QFileDialog.getOpenFileNames(filter="CSV (*.csv)")
         if filenames:
             self.file_selecter.add_files(filenames)
             self.check_run()
 
     def load_tag_file(self):
-        filename, _ = QtWidgets.QFileDialog.getOpenFileName()
+        filename, _ = QtWidgets.QFileDialog.getOpenFileName(filter="CSV (*.csv)")
         if filename:
             self.tag_selecter.load_file(filename)
             self.tag_selecter.clear_all()
