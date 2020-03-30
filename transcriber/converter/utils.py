@@ -5,12 +5,16 @@ from PyQt5 import QtCore
 
 def data_from_line(line):
     date, time, _, tag, val = line.split(",")[:5]
-    return date, time, tag.strip(), val.strip()
+    return flip_date(date), time, tag.strip(), val.strip()
 
 
 def flip_date(date):
     month, day, year = date.split("/")
-    return "{}/{}/{}".format(day, month, year)
+    return f"{day}/{month}/{year}"
+
+
+def val_from_line(line):
+    return line.split(",")[4].strip()
 
 
 def create_worker(filename, tags, total_tags):
@@ -18,7 +22,8 @@ def create_worker(filename, tags, total_tags):
 
 
 def transcribed_filename(filename):
-    return "{} (Transcribed).csv".format(filename.rsplit(".")[0])
+    name = filename.rsplit(".")[0]
+    return f"{name} (Transcribed).csv"
 
 
 class ConverterWorkerSignals(QtCore.QObject):
@@ -53,30 +58,29 @@ class ConverterWorker(QtCore.QRunnable):
         self.signals.error.disconnect(slot)
 
     def convert(self):
-        with open(self.filename) as f:
-            order, vals = [], []
-            date, time = "", ""
-            for line in islice(f, 1, self.total_tags + 1):
+        with open(self.filename) as file:
+            lines = set()
+            values, ordered_tags = [], []
+            for i, line in enumerate(islice(file, 1, self.total_tags + 1)):
                 date, time, tag, val = data_from_line(line)
                 if tag in self.tags:
-                    order.append(tag)
-                    vals.append(val)
-            first_data = "{},{},{}".format(
-                flip_date(date), time, ",".join(vals))
+                    lines.add(i)
+                    ordered_tags.append(tag)
+                    values.append(val)
             with open(transcribed_filename(self.filename), "w") as out:
-                self.transpose(f, order, out, first_data)
+                print(",".join(["Date", "Time", *ordered_tags]), file=out)
+                out.write(",".join([date, time, *values]))
+                self.transpose(file, out, lines)
 
-    def transpose(self, file, tags, out, first_data):
-        print("Date,Time,{}".format(",".join(tags)), file=out)
-        out.write(first_data)
-        tags_written = num_tags = len(tags)
-        for line in islice(file, 1, None):
-            date, time, tag, val = data_from_line(line)
-            if tag not in tags:
+    def transpose(self, read_file, out_file, lines):
+        tags_written = num_tags = len(lines)
+        for i, line in enumerate(read_file):
+            if i % self.total_tags not in lines:
                 continue
             if tags_written == num_tags:
-                out.write("\n{},{},{}".format(flip_date(date), time, val))
+                date, time, _, val = data_from_line(line)
+                out_file.write(f"\n{date},{time},{val}")
                 tags_written = 1
             else:
-                out.write(",{}".format(val))
+                out_file.write(f",{val_from_line(line)}")
                 tags_written += 1

@@ -8,7 +8,7 @@ class MultiThreadingConverterModel(model.ConverterModel):
         super(MultiThreadingConverterModel, self).__init__()
         self.pool = QtCore.QThreadPool()
 
-    @QtCore.pyqtSlot(list, list, int, int)
+    @QtCore.pyqtSlot(list, set, int, int)
     def convert(self, filenames, tags, total_tags, num_cpu):
         self.total_files = len(filenames)
         self.conversion_started.emit()

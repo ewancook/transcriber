@@ -80,7 +80,7 @@ class Transcriber(QtWidgets.QMainWindow):
     def convert(self):
         self.run_widget.convert(
             self.file_selecter.filenames,
-            self.tag_selecter.active_tags,
+            set(self.tag_selecter.active_tags),
             len(self.tag_selecter.tags),
             cpu_count() if self.run_widget.multithreaded else 1)
 
