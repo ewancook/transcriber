@@ -1,16 +1,16 @@
 from multiprocessing import cpu_count
 
-from transcriber.transcriber.file_selecter.presenter import FileSelecter
-from transcriber.transcriber.file_selecter.view import FileSelecterView
+from transcriber.file_selecter.presenter import FileSelecter
+from transcriber.file_selecter.view import FileSelecterView
 
-from transcriber.transcriber.tag_selecter.presenter import TagSelecter
-from transcriber.transcriber.tag_selecter.view import TagSelecterView
-from transcriber.transcriber.tag_selecter.model import TagSelecterModel
+from transcriber.tag_selecter.presenter import TagSelecter
+from transcriber.tag_selecter.view import TagSelecterView
+from transcriber.tag_selecter.model import TagSelecterModel
 
-from transcriber.transcriber.converter.presenter import Converter
-from transcriber.transcriber.converter.view import ConverterView
-from transcriber.transcriber.converter.multithreading_model import MultiThreadingConverterModel
-from transcriber.transcriber.converter.collator import Collator
+from transcriber.converter.presenter import Converter
+from transcriber.converter.view import ConverterView
+from transcriber.converter.multithreading_model import MultiThreadingConverterModel
+from transcriber.converter.collator import Collator
 
 from PyQt5 import QtWidgets, QtCore
 

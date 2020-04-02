@@ -1,6 +1,6 @@
 from PyQt5 import QtCore
 
-from . import utils, model
+from transcriber.converter import utils, model
 
 
 class MultiThreadingConverterModel(model.ConverterModel):

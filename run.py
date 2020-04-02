@@ -3,7 +3,7 @@ import sys
 
 from PyQt5 import QtWidgets
 
-from transcriber.transcriber.transcriber import Transcriber
+from transcriber.transcriber import Transcriber
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication([])
