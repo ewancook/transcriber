@@ -22,7 +22,7 @@ def create_worker(filename, tags, total_tags):
 
 
 def transcribed_filename(filename):
-    name = filename.rsplit(".")[0]
+    name = filename.rsplit(".", 1)[0]
     return f"{name} (Transcribed).csv"
 
 
