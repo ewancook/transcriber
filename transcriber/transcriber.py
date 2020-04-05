@@ -20,11 +20,10 @@ class Transcriber(QtWidgets.QMainWindow):
         super(Transcriber, self).__init__()
 
         self.file_selecter = FileSelecter(FileSelecterView())
-        self.file_selecter.connect_add_clicked(self.load_csv)
         self.file_selecter.connect_del_clicked(self.check_run)
+        self.file_selecter.connect_files_added(self.check_run)
 
         self.tag_selecter = TagSelecter(TagSelecterView(), TagSelecterModel())
-        self.tag_selecter.connect_load_clicked(self.load_tag_file)
         self.tag_selecter.connect_tag_added(self.check_run)
         self.tag_selecter.connect_tag_deleted(self.check_run)
 
@@ -52,26 +51,6 @@ class Transcriber(QtWidgets.QMainWindow):
         self.setCentralWidget(QtWidgets.QWidget(self))
         self.centralWidget().setLayout(self._widget_list)
         self.setWindowTitle("Transcriber")
-
-    def load_csv(self):
-        filenames, _ = QtWidgets.QFileDialog.getOpenFileNames(
-            filter="CSV (*.csv)")
-        if filenames:
-            self.file_selecter.add_files(filenames)
-            self.check_run()
-
-    def load_tag_file(self):
-        filename, _ = QtWidgets.QFileDialog.getOpenFileName(
-            filter="CSV (*.csv)")
-        if filename:
-            self.tag_selecter.load_file(filename)
-            self.tag_selecter.clear_all()
-            self.tag_selecter.clear_new()
-            tags = self.tag_selecter.tags
-            if tags:
-                self.tag_selecter.set_all(tags)
-            self.tag_selecter.disable_addition()
-            self.tag_selecter.disable_deletion()
 
     def check_run(self):
         if self.tag_selecter.active_tags and self.file_selecter.filenames:

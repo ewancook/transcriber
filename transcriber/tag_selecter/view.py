@@ -12,7 +12,11 @@ class TagSelecterView(QtWidgets.QWidget):
 
         self.load = QtWidgets.QPushButton("Load Tag File", self)
         self.tags = QtWidgets.QListWidget(self)
+        self.tags.setSelectionMode(
+            QtWidgets.QAbstractItemView.ExtendedSelection)
         self.used = QtWidgets.QListWidget(self)
+        self.used.setSelectionMode(
+            QtWidgets.QAbstractItemView.ExtendedSelection)
         self.add_tag = QtWidgets.QPushButton("Add", self)
         self.del_tag = QtWidgets.QPushButton("Remove", self)
         self.add_tag.setEnabled(False)
@@ -47,6 +51,11 @@ class TagSelecterView(QtWidgets.QWidget):
         self._layout.addLayout(horizontal)
         self.setLayout(self._layout)
 
+    def load_tag_file(self):
+        filename, _ = QtWidgets.QFileDialog.getOpenFileName(
+            filter="CSV (*.csv)")
+        return filename
+
     def add_item(self, item):
         tag = item.text()
         if tag not in self.active_tags():
@@ -63,10 +72,12 @@ class TagSelecterView(QtWidgets.QWidget):
         return [self.used.item(i).text() for i in range(self.used.count())]
 
     def add_current(self):
-        self.add_item(self.tags.item(self.tags.currentRow()))
+        for item in self.tags.selectedItems():
+            self.add_item(item)
 
     def del_current(self):
-        self.del_item(self.used.currentItem())
+        for item in self.used.selectedItems():
+            self.del_item(item)
 
     def enable_deletion(self):
         self.del_tag.setEnabled(True)

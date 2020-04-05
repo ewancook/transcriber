@@ -3,6 +3,8 @@ class TagSelecter:
         self.view = view
         self.model = model
 
+        self.view.connect_load_clicked(self.load_file)
+
     @property
     def tags(self):
         return self.model.tags
@@ -11,10 +13,16 @@ class TagSelecter:
     def active_tags(self):
         return self.view.active_tags()
 
-    def load_file(self, filename):
-        self.model.load(filename)
-        self.view.disable_deletion()
-        self.view.disable_addition()
+    def load_file(self):
+        filename = self.view.load_tag_file()
+        if filename:
+            self.model.load(filename)
+            self.clear_all()
+            self.clear_new()
+            if self.tags:
+                self.set_all(self.tags)
+            self.disable_deletion()
+            self.disable_addition()
 
     def add_tag(self):
         self.view.add_tag()
