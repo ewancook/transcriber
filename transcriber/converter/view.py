@@ -52,9 +52,12 @@ class ConverterView(QtWidgets.QWidget):
         self.progress_value = 0
         self.progress.reset()
 
-    def update_progress(self, increment):
-        self.progress_value += increment
-        self.progress.setValue(self.progress_value * 100)
+    def set_progress_range(self, min, max):
+        self.progress.setRange(min, max)
+
+    def update_progress(self):
+        self.progress_value += 1
+        self.progress.setValue(self.progress_value)
 
     def connect_run_clicked(self, slot):
         self.run.clicked.connect(slot)

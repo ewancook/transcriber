@@ -5,7 +5,7 @@ class ConverterModel(QtCore.QObject):
     conversion_started = QtCore.pyqtSignal()
     conversion_finished = QtCore.pyqtSignal()
     conversion_error = QtCore.pyqtSignal(tuple)
-    conversion_update = QtCore.pyqtSignal(float)
+    conversion_update = QtCore.pyqtSignal()
 
     start = QtCore.pyqtSignal(list, set, int, list)
 
@@ -15,7 +15,7 @@ class ConverterModel(QtCore.QObject):
         self.start.connect(self.convert)
 
     def update_conversion_total(self):
-        self.conversion_update.emit(1 / self.total_files)
+        self.conversion_update.emit()
 
     def connect_conversion_started(self, slot):
         self.conversion_started.connect(slot)

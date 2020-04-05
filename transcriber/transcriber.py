@@ -27,6 +27,7 @@ class Transcriber(QtWidgets.QMainWindow):
         self.tag_selecter.connect_tag_added(self.check_run)
         self.tag_selecter.connect_tag_deleted(self.check_run)
         self.tag_selecter.connect_loading_error(self._handle_tag_loading_error)
+        self.tag_selecter.connect_loading_finished(self.check_run)
 
         self.converter = Converter(
             ConverterView(),
@@ -72,7 +73,8 @@ class Transcriber(QtWidgets.QMainWindow):
             self.tag_selecter.tags)
 
     def collate(self):
-        if self.converter.collate_files:
+        if self.converter.collate_files and len(
+                self.conversion_errors) < len(self.file_selecter.filenames):
             save_file, _ = QtWidgets.QFileDialog.getSaveFileName(
                 caption="Select Output File - Collated CSV", filter="CSV (*.csv)")
             if save_file:

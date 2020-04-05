@@ -16,9 +16,9 @@ class TagSelecter:
     def load_file(self):
         filename = self.view.load_tag_file()
         if filename:
-            self.model.load(filename)
             self.clear_all()
             self.clear_new()
+            self.model.load(filename)
             if self.tags:
                 self.set_all(self.tags)
             self.disable_deletion()
@@ -74,3 +74,9 @@ class TagSelecter:
 
     def disconnect_loading_error(self, slot):
         self.model.disconnect_loading_error(slot)
+
+    def connect_loading_finished(self, slot):
+        self.model.connect_loading_finished(slot)
+
+    def disconnect_loading_finished(self, slot):
+        self.model.disconnect_loading_finished(slot)
