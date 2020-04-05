@@ -8,14 +8,14 @@ class MultiThreadingConverterModel(model.ConverterModel):
         super(MultiThreadingConverterModel, self).__init__()
         self.pool = QtCore.QThreadPool()
 
-    @QtCore.pyqtSlot(list, set, int, int, list)
-    def convert(self, filenames, tags, total_tags, num_cpu, tag_lookup):
+    @QtCore.pyqtSlot(list, set, int, list)
+    def convert(self, filenames, tags, num_cpu, tag_lookup):
         self.total_files = len(filenames)
         self.conversion_started.emit()
         self.pool.setMaxThreadCount(num_cpu)
         for filename in filenames:
             worker = dbfconverter.create_worker(
-                filename, tags, total_tags, tag_lookup)
+                filename, tags, tag_lookup)
             worker.connect_finished(self.update_conversion_total)
             worker.connect_error(self.conversion_error.emit)
             self.pool.start(worker)

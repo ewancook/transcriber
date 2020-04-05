@@ -1,11 +1,8 @@
-from itertools import islice
 from struct import Struct
 
 from transcriber.converter import utils
 
 from transcriber.dbf.parser import Parser
-
-from PyQt5 import QtCore
 
 
 def _format_date(date):
@@ -13,8 +10,8 @@ def _format_date(date):
     return f"{day}/{month}/{year}"
 
 
-def create_worker(filename, tags, total_tags, tag_lookup):
-    return DBFConverterWorker(filename, tags, total_tags, tag_lookup)
+def create_worker(filename, tags, tag_lookup):
+    return DBFConverterWorker(filename, tags, tag_lookup)
 
 
 class DBFConverterWorker(utils.ConverterWorker):
@@ -32,7 +29,7 @@ class DBFConverterWorker(utils.ConverterWorker):
         with open(utils.transcribed_filename(self.filename), "w") as out:
             out.write(",".join(["Date", "Time", *[self.tag_lookup[l] for l in lines]]))
             tags_written = num_tags = len(lines)
-            for i, row in enumerate(table, total_tags):
+            for i, row in enumerate(table):
                 if i % total_tags not in lines:
                     continue
                 value = round(double_struct.unpack(row["Value"])[0], 8)

@@ -28,13 +28,14 @@ def transcribed_filename(filename):
 
 class ConverterWorkerSignals(QtCore.QObject):
     finished = QtCore.pyqtSignal()
-    error = QtCore.pyqtSignal(Exception)
+    error = QtCore.pyqtSignal(tuple)
 
 
 class ConverterWorker(QtCore.QRunnable):
     def __init__(self, *args, **kwargs):
         super(ConverterWorker, self).__init__()
-        self.filename, self.tags, self.total_tags, self.tag_lookup = args
+        self.filename, self.tags, self.tag_lookup = args
+        self.total_tags = len(self.tag_lookup)
         self.signals = ConverterWorkerSignals()
 
     @QtCore.pyqtSlot()
@@ -42,7 +43,7 @@ class ConverterWorker(QtCore.QRunnable):
         try:
             self.convert()
         except Exception as e:
-            self.signals.error.emit(e)
+            self.signals.error.emit((self.filename, e))
         self.signals.finished.emit()
 
     def connect_finished(self, slot):
@@ -59,28 +60,19 @@ class ConverterWorker(QtCore.QRunnable):
 
     def convert(self):
         with open(self.filename) as file:
-            lines = set()
-            values, ordered_tags = [], []
-            for i, line in enumerate(islice(file, 1, self.total_tags + 1)):
-                date, time, tag, val = data_from_line(line)
-                if tag in self.tags:
-                    lines.add(i)
-                    ordered_tags.append(tag)
-                    values.append(val)
-            with open(transcribed_filename(self.filename), "w") as out:
-                print(",".join(["Date", "Time", *ordered_tags]), file=out)
-                out.write(",".join([date, time, *values]))
-                self.transpose(file, out, lines)
+            lines = set([self.tag_lookup.index(t) for t in self.tags])
+            total_tags = self.total_tags
 
-    def transpose(self, read_file, out_file, lines):
-        tags_written = num_tags = len(lines)
-        for i, line in enumerate(read_file):
-            if i % self.total_tags not in lines:
-                continue
-            if tags_written == num_tags:
-                date, time, _, val = data_from_line(line)
-                out_file.write(f"\n{date},{time},{val}")
-                tags_written = 1
-            else:
-                out_file.write(f",{val_from_line(line)}")
-                tags_written += 1
+            with open(transcribed_filename(self.filename), "w") as out:
+                tags_written = num_tags = len(lines)
+                out.write(",".join(["Date", "Time", *[self.tag_lookup[i] for i in lines]]))
+                for i, line in enumerate(islice(file, 1, None)):
+                    if i % total_tags not in lines:
+                        continue
+                    if tags_written == num_tags:
+                        date, time, _, val = data_from_line(line)
+                        out.write(f"\n{date},{time},{val}")
+                        tags_written = 1
+                    else:
+                        out.write(f",{val_from_line(line)}")
+                        tags_written += 1

@@ -68,3 +68,9 @@ class TagSelecter:
 
     def disconnect_tag_deleted(self, slot):
         self.view.disconnect_tag_deleted(slot)
+
+    def connect_loading_error(self, slot):
+        self.model.connect_loading_error(slot)
+
+    def disconnect_loading_error(self, slot):
+        self.model.disconnect_loading_error(slot)

@@ -26,20 +26,26 @@ class Transcriber(QtWidgets.QMainWindow):
         self.tag_selecter = TagSelecter(TagSelecterView(), TagSelecterModel())
         self.tag_selecter.connect_tag_added(self.check_run)
         self.tag_selecter.connect_tag_deleted(self.check_run)
+        self.tag_selecter.connect_loading_error(self._handle_tag_loading_error)
 
-        self.run_widget = Converter(
+        self.converter = Converter(
             ConverterView(),
             MultiThreadingConverterModel(),
             Collator())
-        self.run_widget.connect_run_clicked(self.run_widget.reset_progress)
-        self.run_widget.connect_run_clicked(self.convert)
-        self.run_widget.connect_conversion_started(self.disable_all)
-        self.run_widget.connect_conversion_finished(self.enable_all)
-        self.run_widget.connect_conversion_finished(self.collate)
 
-        self.run_widget.connect_conversion_error(print)
-        self.run_widget.connect_collation_started(self.disable_all)
-        self.run_widget.connect_collation_finished(self.enable_all)
+        self.conversion_errors = []
+        self.converter.connect_run_clicked(self.converter.reset_progress)
+        self.converter.connect_run_clicked(self.convert)
+        self.converter.connect_conversion_started(self.disable_all)
+        self.converter.connect_conversion_finished(self.enable_all)
+        self.converter.connect_conversion_finished(self.collate)
+        self.converter.connect_conversion_finished(
+            self._handle_conversion_errors)
+
+        self.converter.connect_conversion_error(self._append_conversion_error)
+
+        self.converter.connect_collation_started(self.disable_all)
+        self.converter.connect_collation_finished(self.enable_all)
 
         self.splitter = QtWidgets.QSplitter(QtCore.Qt.Horizontal)
         self.splitter.addWidget(self.file_selecter.view)
@@ -47,31 +53,30 @@ class Transcriber(QtWidgets.QMainWindow):
 
         self._widget_list = QtWidgets.QVBoxLayout()
         self._widget_list.addWidget(self.splitter)
-        self._widget_list.addWidget(self.run_widget.view)
+        self._widget_list.addWidget(self.converter.view)
         self.setCentralWidget(QtWidgets.QWidget(self))
         self.centralWidget().setLayout(self._widget_list)
         self.setWindowTitle("Transcriber")
 
     def check_run(self):
         if self.tag_selecter.active_tags and self.file_selecter.filenames:
-            self.run_widget.enable_run()
+            self.converter.enable_run()
         else:
-            self.run_widget.disable_run()
+            self.converter.disable_run()
 
     def convert(self):
-        self.run_widget.convert(
+        self.converter.convert(
             self.file_selecter.filenames,
             set(self.tag_selecter.active_tags),
-            len(self.tag_selecter.tags),
-            cpu_count() if self.run_widget.multithreaded else 1,
+            cpu_count() if self.converter.multithreaded else 1,
             self.tag_selecter.tags)
 
     def collate(self):
-        if self.run_widget.collate_files:
+        if self.converter.collate_files:
             save_file, _ = QtWidgets.QFileDialog.getSaveFileName(
                 caption="Select Output File - Collated CSV", filter="CSV (*.csv)")
             if save_file:
-                self.run_widget.collate(
+                self.converter.collate(
                     save_file, self.file_selecter.filenames)
 
     def disable_all(self):
@@ -79,3 +84,27 @@ class Transcriber(QtWidgets.QMainWindow):
 
     def enable_all(self):
         self.centralWidget().setEnabled(True)
+
+    def _append_conversion_error(self, error):
+        self.conversion_errors.append(error)
+
+    def _create_window_error(self, title, text, *errors):
+        msg = QtWidgets.QMessageBox(parent=self)
+        msg.setWindowTitle(title)
+        msg.setText(text)
+        msg.setDetailedText("\n".join(
+            ["Exception: {}; Args: {}".format(type(e).__name__, e.args) for e in errors]))
+        msg.show()
+
+    def _handle_tag_loading_error(self, error):
+        self._create_window_error("Error Loading Tagfile",
+                                  "Tagnames could not be parsed from this file.",
+                                  error)
+
+    def _handle_conversion_errors(self):
+        if self.conversion_errors:
+            files = "\n".join([i[0] for i in self.conversion_errors])
+            self._create_window_error("Conversion Error(s)",
+                                      f"The following files could not be converted:\n\n{files}",
+                                      *[i[1] for i in self.conversion_errors])
+            self.conversion_errors = []

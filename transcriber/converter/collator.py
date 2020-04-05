@@ -1,6 +1,6 @@
 from itertools import islice
 
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtCore
 
 from transcriber.converter import utils
 

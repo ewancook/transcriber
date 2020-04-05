@@ -4,10 +4,10 @@ from PyQt5 import QtCore
 class ConverterModel(QtCore.QObject):
     conversion_started = QtCore.pyqtSignal()
     conversion_finished = QtCore.pyqtSignal()
-    conversion_error = QtCore.pyqtSignal(Exception)
+    conversion_error = QtCore.pyqtSignal(tuple)
     conversion_update = QtCore.pyqtSignal(float)
 
-    start = QtCore.pyqtSignal(list, set, int, int, list)
+    start = QtCore.pyqtSignal(list, set, int, list)
 
     def __init__(self):
         super(ConverterModel, self).__init__()
