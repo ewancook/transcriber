@@ -52,8 +52,8 @@ class TagSelecterView(QtWidgets.QWidget):
         self.setLayout(self._layout)
 
     def load_tag_file(self):
-        filename, _ = QtWidgets.QFileDialog.getOpenFileName(caption="Select Tagfile - DAT",
-                                                            filter="DAT (*.DAT)")
+        filename, _ = QtWidgets.QFileDialog.getOpenFileName(
+            parent=self, caption="Select Tagfile - DAT", filter="DAT (*.DAT)")
         return filename
 
     def add_item(self, item):

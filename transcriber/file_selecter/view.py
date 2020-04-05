@@ -32,8 +32,8 @@ class FileSelecterView(QtWidgets.QWidget):
         return [self.files.item(i).text() for i in range(self.files.count())]
 
     def load_dat(self):
-        filenames, _ = QtWidgets.QFileDialog.getOpenFileNames(caption="Select Float File(s) - DAT",
-                                                              filter="DAT (*.DAT)")
+        filenames, _ = QtWidgets.QFileDialog.getOpenFileNames(
+            parent=self, caption="Select Float File(s) - DAT", filter="DAT (*.DAT)")
         if filenames:
             self.add_files(filenames)
             self.files_added.emit()
