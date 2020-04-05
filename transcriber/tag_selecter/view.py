@@ -53,7 +53,7 @@ class TagSelecterView(QtWidgets.QWidget):
 
     def load_tag_file(self):
         filename, _ = QtWidgets.QFileDialog.getOpenFileName(
-            filter="CSV (*.csv)")
+            filter="DAT (*.DAT)")
         return filename
 
     def add_item(self, item):

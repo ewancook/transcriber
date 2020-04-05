@@ -7,7 +7,7 @@ class ConverterModel(QtCore.QObject):
     conversion_error = QtCore.pyqtSignal(Exception)
     conversion_update = QtCore.pyqtSignal(float)
 
-    start = QtCore.pyqtSignal(list, set, int, int)
+    start = QtCore.pyqtSignal(list, set, int, int, list)
 
     def __init__(self):
         super(ConverterModel, self).__init__()

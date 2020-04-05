@@ -12,11 +12,11 @@ class FileSelecterView(QtWidgets.QWidget):
         self.files = QtWidgets.QListWidget(self)
         self.files.setSelectionMode(
             QtWidgets.QAbstractItemView.ExtendedSelection)
-        self.add_file = QtWidgets.QPushButton("Load CSV File(s)", self)
+        self.add_file = QtWidgets.QPushButton("Load DAT File(s)", self)
         self.del_file = QtWidgets.QPushButton("Remove", self)
         self.del_file.setEnabled(False)
 
-        self.connect_add_clicked(self.load_csv)
+        self.connect_add_clicked(self.load_dat)
         self.connect_del_clicked(self.del_current)
         self.connect_current_changed(self.enable_deletion)
         self.files.doubleClicked.connect(self.del_current)
@@ -31,9 +31,9 @@ class FileSelecterView(QtWidgets.QWidget):
     def filenames(self):
         return [self.files.item(i).text() for i in range(self.files.count())]
 
-    def load_csv(self):
+    def load_dat(self):
         filenames, _ = QtWidgets.QFileDialog.getOpenFileNames(
-            filter="CSV (*.csv)")
+            filter="DAT (*.DAT)")
         if filenames:
             self.add_files(filenames)
             self.files_added.emit()

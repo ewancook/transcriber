@@ -63,7 +63,8 @@ class Transcriber(QtWidgets.QMainWindow):
             self.file_selecter.filenames,
             set(self.tag_selecter.active_tags),
             len(self.tag_selecter.tags),
-            cpu_count() if self.run_widget.multithreaded else 1)
+            cpu_count() if self.run_widget.multithreaded else 1,
+            self.tag_selecter.tags)
 
     def collate(self):
         if self.run_widget.collate_files:

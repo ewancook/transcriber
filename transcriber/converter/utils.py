@@ -34,7 +34,7 @@ class ConverterWorkerSignals(QtCore.QObject):
 class ConverterWorker(QtCore.QRunnable):
     def __init__(self, *args, **kwargs):
         super(ConverterWorker, self).__init__()
-        self.filename, self.tags, self.total_tags = args
+        self.filename, self.tags, self.total_tags, self.tag_lookup = args
         self.signals = ConverterWorkerSignals()
 
     @QtCore.pyqtSlot()

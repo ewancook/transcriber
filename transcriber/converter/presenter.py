@@ -17,8 +17,8 @@ class Converter(QtCore.QObject):
 
         self.collator.moveToThread(self.model_thread)
 
-    def convert(self, filenames, tags, total_tags, num_cpu):
-        self.model.start.emit(filenames, tags, total_tags, num_cpu)
+    def convert(self, filenames, tags, total_tags, num_cpu, tag_lookup):
+        self.model.start.emit(filenames, tags, total_tags, num_cpu, tag_lookup)
 
     def collate(self, save_file, filenames):
         self.collator.start.emit(save_file, filenames)
