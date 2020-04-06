@@ -9,7 +9,7 @@ from transcriber.tag_selecter.model import TagSelecterModel
 
 from transcriber.converter.presenter import Converter
 from transcriber.converter.view import ConverterView
-from transcriber.converter.multithreading_model import MultiThreadingConverterModel
+from transcriber.converter.multiprocessing_model import MultiProcessingConverterModel
 from transcriber.converter.collator import Collator
 
 from PyQt5 import QtWidgets, QtCore
@@ -31,7 +31,7 @@ class Transcriber(QtWidgets.QMainWindow):
 
         self.converter = Converter(
             ConverterView(),
-            MultiThreadingConverterModel(),
+            MultiProcessingConverterModel(),
             Collator())
 
         self.conversion_errors = []

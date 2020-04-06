@@ -2,7 +2,7 @@ from itertools import islice
 
 from PyQt5 import QtCore
 
-from transcriber.converter import utils
+from transcriber.converter.workers import utils
 
 
 class Collator(QtCore.QObject):
