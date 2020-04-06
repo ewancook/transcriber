@@ -11,7 +11,7 @@ class ConverterView(QtWidgets.QWidget):
 
         cores = multiprocessing.cpu_count()
         self.multi = QtWidgets.QCheckBox(
-            "Multi Threaded ({} Cores)".format(cores), self)
+            "Parallel Conversion ({} Cores)".format(cores), self)
         self.multi.setChecked(True)
 
         self.collate = QtWidgets.QCheckBox("Collate Output (Overall CSV)")
