@@ -11,7 +11,8 @@ class FileSelecterView(QtWidgets.QWidget):
 
         self.files = QtWidgets.QListWidget(self)
         self.files.setSelectionMode(
-            QtWidgets.QAbstractItemView.ExtendedSelection)
+            QtWidgets.QAbstractItemView.ExtendedSelection
+        )
         self.add_file = QtWidgets.QPushButton("Load DAT File(s)", self)
         self.del_file = QtWidgets.QPushButton("Remove", self)
         self.del_file.setEnabled(False)
@@ -33,7 +34,10 @@ class FileSelecterView(QtWidgets.QWidget):
 
     def load_dat(self):
         filenames, _ = QtWidgets.QFileDialog.getOpenFileNames(
-            parent=self, caption="Select Float File(s) - DAT", filter="DAT (*.DAT)")
+            parent=self,
+            caption="Select Float File(s) - DAT",
+            filter="DAT (*.DAT)",
+        )
         if filenames:
             self.add_files(filenames)
             self.files_added.emit()

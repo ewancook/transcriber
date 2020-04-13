@@ -13,10 +13,12 @@ class TagSelecterView(QtWidgets.QWidget):
         self.load = QtWidgets.QPushButton("Load Tag File", self)
         self.tags = QtWidgets.QListWidget(self)
         self.tags.setSelectionMode(
-            QtWidgets.QAbstractItemView.ExtendedSelection)
+            QtWidgets.QAbstractItemView.ExtendedSelection
+        )
         self.used = QtWidgets.QListWidget(self)
         self.used.setSelectionMode(
-            QtWidgets.QAbstractItemView.ExtendedSelection)
+            QtWidgets.QAbstractItemView.ExtendedSelection
+        )
         self.add_tag = QtWidgets.QPushButton("Add", self)
         self.del_tag = QtWidgets.QPushButton("Remove", self)
         self.add_tag.setEnabled(False)
@@ -53,7 +55,8 @@ class TagSelecterView(QtWidgets.QWidget):
 
     def load_tag_file(self):
         filename, _ = QtWidgets.QFileDialog.getOpenFileName(
-            parent=self, caption="Select Tagfile - DAT", filter="DAT (*.DAT)")
+            parent=self, caption="Select Tagfile - DAT", filter="DAT (*.DAT)"
+        )
         return filename
 
     def add_item(self, item):

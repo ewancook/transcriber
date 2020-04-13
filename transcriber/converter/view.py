@@ -11,13 +11,15 @@ class ConverterView(QtWidgets.QWidget):
 
         cores = multiprocessing.cpu_count()
         self.multi = QtWidgets.QCheckBox(
-            "Parallel Conversion ({} Cores)".format(cores), self)
+            "Parallel Conversion ({} Cores)".format(cores), self
+        )
         self.multi.setChecked(True)
 
         self.collate = QtWidgets.QCheckBox("Collate Output (Overall CSV)")
         self.collate.setChecked(False)
         self.collate.setToolTip(
-            "'Collate Output' produces an additional CSV that includes all data. Files are collated in selection order (see 'Loaded').")
+            "'Collate Output' produces an additional CSV that includes all data. Files are collated in selection order (see 'Loaded')."
+        )
 
         self.run = QtWidgets.QPushButton("Run", self)
         self.run.setEnabled(False)

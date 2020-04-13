@@ -9,7 +9,9 @@ from transcriber.tag_selecter.model import TagSelecterModel
 
 from transcriber.converter.presenter import Converter
 from transcriber.converter.view import ConverterView
-from transcriber.converter.multiprocessing_model import MultiProcessingConverterModel
+from transcriber.converter.multiprocessing_model import (
+    MultiProcessingConverterModel,
+)
 from transcriber.converter.collator import Collator
 
 from PyQt5 import QtWidgets, QtCore
@@ -30,9 +32,8 @@ class Transcriber(QtWidgets.QMainWindow):
         self.tag_selecter.connect_loading_finished(self.check_run)
 
         self.converter = Converter(
-            ConverterView(),
-            MultiProcessingConverterModel(),
-            Collator())
+            ConverterView(), MultiProcessingConverterModel(), Collator()
+        )
 
         self.conversion_errors = []
         self.converter.connect_run_clicked(self.converter.reset_progress)
@@ -41,7 +42,8 @@ class Transcriber(QtWidgets.QMainWindow):
         self.converter.connect_conversion_finished(self.enable_all)
         self.converter.connect_conversion_finished(self.collate)
         self.converter.connect_conversion_finished(
-            self._handle_conversion_errors)
+            self._handle_conversion_errors
+        )
 
         self.converter.connect_conversion_error(self._append_conversion_error)
 
@@ -70,16 +72,20 @@ class Transcriber(QtWidgets.QMainWindow):
             self.file_selecter.filenames,
             set(self.tag_selecter.active_tags),
             cpu_count() if self.converter.multithreaded else 1,
-            self.tag_selecter.tags)
+            self.tag_selecter.tags,
+        )
 
     def collate(self):
-        if self.converter.collate_files and len(
-                self.conversion_errors) < len(self.file_selecter.filenames):
-            save_file, _ = QtWidgets.QFileDialog.getSaveFileName(parent=self,
-                                                                 caption="Select Output File - Collated CSV", filter="CSV (*.csv)")
+        if self.converter.collate_files and len(self.conversion_errors) < len(
+            self.file_selecter.filenames
+        ):
+            save_file, _ = QtWidgets.QFileDialog.getSaveFileName(
+                parent=self,
+                caption="Select Output File - Collated CSV",
+                filter="CSV (*.csv)",
+            )
             if save_file:
-                self.converter.collate(
-                    save_file, self.file_selecter.filenames)
+                self.converter.collate(save_file, self.file_selecter.filenames)
 
     def disable_all(self):
         self.centralWidget().setEnabled(False)
@@ -94,19 +100,29 @@ class Transcriber(QtWidgets.QMainWindow):
         msg = QtWidgets.QMessageBox(parent=self)
         msg.setWindowTitle(title)
         msg.setText(text)
-        msg.setDetailedText("\n".join(
-            ["Exception: {}; Args: {}".format(type(e).__name__, e.args) for e in errors]))
+        msg.setDetailedText(
+            "\n".join(
+                [
+                    "Exception: {}; Args: {}".format(type(e).__name__, e.args)
+                    for e in errors
+                ]
+            )
+        )
         msg.show()
 
     def _handle_tag_loading_error(self, error):
-        self._create_window_error("Error Loading Tagfile",
-                                  "Tagnames could not be parsed from this file.",
-                                  error)
+        self._create_window_error(
+            "Error Loading Tagfile",
+            "Tagnames could not be parsed from this file.",
+            error,
+        )
 
     def _handle_conversion_errors(self):
         if self.conversion_errors:
             files = "\n".join([i[0] for i in self.conversion_errors])
-            self._create_window_error("Conversion Error(s)",
-                                      f"The following files could not be converted:\n\n{files}",
-                                      *[i[1] for i in self.conversion_errors])
+            self._create_window_error(
+                "Conversion Error(s)",
+                f"The following files could not be converted:\n\n{files}",
+                *[i[1] for i in self.conversion_errors],
+            )
             self.conversion_errors = []

@@ -15,8 +15,10 @@ class TagSelecterModel(QtCore.QObject):
     def load(self, filename):
         self.tags = []
         try:
-            self.tags = [r["Tagname"].decode().strip()
-                         for r in self.parser.parse_file(filename)]
+            self.tags = [
+                r["Tagname"].decode().strip()
+                for r in self.parser.parse_all(filename)
+            ]
         except Exception as e:
             self.loading_error.emit(e)
         self.loading_finished.emit()

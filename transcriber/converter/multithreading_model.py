@@ -15,8 +15,7 @@ class MultiThreadingConverterModel(model.ConverterModel):
         self.conversion_started.emit()
         self.pool.setMaxThreadCount(num_cpu)
         for filename in filenames:
-            worker = ThreadedCSVWorker(
-                filename, tags, tag_lookup)
+            worker = ThreadedCSVWorker(filename, tags, tag_lookup)
             worker.connect_finished(self.update_conversion_total)
             worker.connect_error(self.conversion_error.emit)
             self.pool.start(worker)

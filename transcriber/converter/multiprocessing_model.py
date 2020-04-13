@@ -24,12 +24,13 @@ class MultiProcessingConverterModel(model.ConverterModel):
             pool.apply_async(
                 func=worker.work,
                 callback=self.register_successful_conversion,
-                error_callback=self.handle_error
+                error_callback=self.handle_error,
             )
         pool.close()
         pool.join()
         unsuccessful = [
-            f for f in filenames if f not in self.successful_conversions]
+            f for f in filenames if f not in self.successful_conversions
+        ]
         for file, error in zip(unsuccessful, self.exceptions):
             self.conversion_error.emit((file, error))
         self.conversion_finished.emit()

@@ -23,7 +23,11 @@ class CSVWorker:
 
             with open(utils.transcribed_filename(self.filename), "w") as out:
                 tags_written = num_tags = len(lines)
-                out.write(",".join(["Date", "Time", *[self.tag_lookup[i] for i in lines]]))
+                out.write(
+                    ",".join(
+                        ["Date", "Time", *[self.tag_lookup[i] for i in lines]]
+                    )
+                )
                 for i, line in enumerate(islice(file, 1, None)):
                     if i % total_tags not in lines:
                         continue
@@ -39,21 +43,26 @@ class CSVWorker:
 class DBFWorker(CSVWorker):
     def __init__(self, filename, tags, tag_lookup):
         super(DBFWorker, self).__init__(filename, tags, tag_lookup)
-        self.parser = Parser(["Date", "Time", "Value"])
+        self.parser = Parser(
+            required_fields=["Date", "Time", "Value"],
+            required_tags=set([self.tag_lookup.index(t) for t in self.tags]),
+            total_tags=self.total_tags,
+        )
 
     def convert(self):
-        table = self.parser.parse_file(self.filename)
+        table = self.parser.parse_selection(self.filename)
         double_struct = Struct("<d")
 
         lines = set([self.tag_lookup.index(t) for t in self.tags])
-        total_tags = self.total_tags
 
         with open(utils.transcribed_filename(self.filename), "w") as out:
-            out.write(",".join(["Date", "Time", *[self.tag_lookup[l] for l in lines]]))
+            out.write(
+                ",".join(
+                    ["Date", "Time", *[self.tag_lookup[l] for l in lines]]
+                )
+            )
             tags_written = num_tags = len(lines)
-            for i, row in enumerate(table):
-                if i % total_tags not in lines:
-                    continue
+            for row in table:
                 value = round(double_struct.unpack(row["Value"])[0], 8)
                 if tags_written == num_tags:
                     date = utils.format_dbf_date(row["Date"].decode())
