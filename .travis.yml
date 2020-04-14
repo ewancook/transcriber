@@ -1,0 +1,48 @@
+language: python
+notifications:
+        email: false
+
+jobs:
+  include:
+    - os: linux
+      dist: bionic
+      python: 3.8
+      before_install:
+        - pip3 install --upgrade pip
+      env:
+        - FOLDER=transcriber_${TRAVIS_TAG}_${TRAVIS_OS_NAME}
+        - ARCHIVE_NAME=${FOLDER}.tar.gz
+      install: &common_install
+        - pip3 install -r requirements.txt
+        - pip3 install pyinstaller
+      script: &common_script
+        - pyinstaller --name="transcriber" --windowed --onedir run.py
+        - mv dist/transcriber ${FOLDER}
+      before_deploy:
+        - tar -czf ${ARCHIVE_NAME} ${FOLDER}
+      deploy: &common_deploy
+        provider: releases
+        api_key: ${GITHUB_TOKEN}
+        file: ${ARCHIVE_NAME}
+        skip_cleanup: true
+        name: ${TRAVIS_TAG}
+        on:
+          tags: true
+
+    - os: windows
+      language: shell
+      before_install:
+        - choco install python --version=3.8
+        - python -m pip install --upgrade pip
+      env:
+        - PATH=/c/Python38:/c/Python38/Scripts:$PATH
+        - FOLDER=transcriber_${TRAVIS_TAG}_${TRAVIS_OS_NAME}
+        - ARCHIVE_NAME=${FOLDER}.zip
+      install:
+        - *common_install
+      script:
+        - *common_script
+      before_deploy:
+        - 7z.exe a -tzip ${ARCHIVE_NAME} ${FOLDER}
+      deploy:
+        <<: *common_deploy
