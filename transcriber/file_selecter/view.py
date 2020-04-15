@@ -17,6 +17,13 @@ class FileSelecterView(QtWidgets.QWidget):
         self.del_file = QtWidgets.QPushButton("Remove", self)
         self.del_file.setEnabled(False)
 
+        self.add_file.setToolTip(
+            "Select DAT files to transcribe. File names typically end in '(Float).DAT'."
+        )
+        self.del_file.setToolTip(
+            "Remove selected files. These will no longer be transcribed."
+        )
+
         self.connect_add_clicked(self.load_dat)
         self.connect_del_clicked(self.del_current)
         self.connect_current_changed(self.enable_deletion)

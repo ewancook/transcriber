@@ -14,15 +14,22 @@ class ConverterView(QtWidgets.QWidget):
             "Parallel Conversion ({} Cores)".format(cores), self
         )
         self.multi.setChecked(True)
+        self.multi.setToolTip(
+            "If enabled, all CPU cores are used to transcribe multiple files simultaneously."
+        )
 
         self.collate = QtWidgets.QCheckBox("Collate Output (Overall CSV)")
         self.collate.setChecked(False)
         self.collate.setToolTip(
-            "'Collate Output' produces an additional CSV that includes all data. Files are collated in selection order (see 'Loaded')."
+            "If enabled, an additional CSV containing all data will be produced. Files are collated in order of appearance (see 'Loaded')."
         )
 
         self.run = QtWidgets.QPushButton("Run", self)
         self.run.setEnabled(False)
+
+        self.run.setToolTip(
+            "Transcribe the loaded files using the selected tags.\n\nTranscribed files are created in the same directories as the original files and have the format:\n\t'ORIGINAL_NAME (Transcribed).csv'"
+        )
 
         self.progress = QtWidgets.QProgressBar(self)
         self.progress.setValue(0)

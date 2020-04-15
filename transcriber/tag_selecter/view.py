@@ -11,6 +11,10 @@ class TagSelecterView(QtWidgets.QWidget):
         self._layout = QtWidgets.QVBoxLayout()
 
         self.load = QtWidgets.QPushButton("Load Tag File", self)
+        self.load.setToolTip(
+            "Select a tag file to parse. File names typically end in '(Tagname).DAT'."
+        )
+
         self.tags = QtWidgets.QListWidget(self)
         self.tags.setSelectionMode(
             QtWidgets.QAbstractItemView.ExtendedSelection
@@ -23,6 +27,13 @@ class TagSelecterView(QtWidgets.QWidget):
         self.del_tag = QtWidgets.QPushButton("Remove", self)
         self.add_tag.setEnabled(False)
         self.del_tag.setEnabled(False)
+
+        self.add_tag.setToolTip(
+            "Add selected tags. These tags will represent columns in transcribed CSV files."
+        )
+        self.del_tag.setToolTip(
+            "Remove selected tags. These tags will no longer appear in transcribed CSV files."
+        )
 
         self.tags.itemDoubleClicked.connect(self.add_item)
         self.tags.currentItemChanged.connect(self.enable_addition)

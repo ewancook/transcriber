@@ -1,8 +1,9 @@
 # Transcriber
 
-Rapidly convert FactoryTalk SE DAT files.
+Rapidly convert FactoryTalk SE DAT files to useful CSV files.
 
 <p align="center"><img src="images/transcriber.png" width="70%" height="70%"></p>
+
 
 ## Features
 - Up to 8000 times faster than previous methods:
@@ -66,7 +67,7 @@ The completed build can be found in `dist/transcriber`.
 ### Load DAT File(s)
 
 
-Specify the FactoryTalk SE DAT files to  convert by clicking `Load DAT File(s)`. These commonly have the format:
+Specify the FactoryTalk SE DAT files to transcribe by clicking `Load DAT File(s)`. These commonly have the format:
 
     "DATE START_TIME (Float).DAT"
 
@@ -94,9 +95,9 @@ To add tags, select them and click `Add`. To remove tags, select them and click 
 ---
 ### Parallel Conversion
 
-Enabling `Parallel Conversion (X Cores)` allows Transcriber to use all CPU cores to convert `X` files simultaneously.
+Enabling `Parallel Conversion (X Cores)` allows Transcriber to use all CPU cores to transcribe `X` files simultaneously.
 
-*Note: files will not necessarily be converted in the order specified. This has no impact on collation.*
+*Note: files will not necessarily be transcribed in the order specified. This has no impact on collation.*
 
 ---
 ### Collation
@@ -110,9 +111,9 @@ Enable `Collation` if an overall CSV file containing back-to-back data from all 
 
 It's as easy as that!
 
-Transcriber will attempt to parse all DAT files selected. An error message will be shown if files cannot be converted.
+Transcriber will attempt to parse all DAT files selected. An error message will be shown if files cannot be transcribed.
 
-Converted files are created in the same directory as the original file and have the format:
+Transcribed files are created in the same directories as the original files and have the format:
 
     "ORIGINAL_NAME (Transcribed).csv"
 
