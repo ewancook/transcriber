@@ -2,8 +2,7 @@
 
 Rapidly convert FactoryTalk SE DAT files.
 
-![The Transcriber GUI](images/transcriber.png)
-<center>Transcriber GUI</center>
+<p align="center"><img src="images/transcriber.png" width="70%" height="70%"></p>
 
 ## Features
 - Up to 8000 times faster than previous methods:
@@ -62,7 +61,10 @@ The completed build can be found in `dist/transcriber`.
 
 *Note: multiple selection is possible for all files and tags.*
 
-#### Load DAT File(s)
+---
+
+### Load DAT File(s)
+
 
 Specify the FactoryTalk SE DAT files to  convert by clicking `Load DAT File(s)`. These commonly have the format:
 
@@ -72,7 +74,9 @@ To remove files, select them and click `Remove`.
 
 *Note: if collating, files will be collated in the order added. This allows custom ordering.*
 
-#### Load Tag File
+---
+### Load Tag File
+
 
 Specify a FactoryTalk SE tag file to be parsed by clicking `Load Tag File`. These commonly have the format:
 
@@ -80,25 +84,29 @@ Specify a FactoryTalk SE tag file to be parsed by clicking `Load Tag File`. Thes
 
 An error message will be shown if the file cannot be parsed.
 
-#### Adding/Removing Tags
+---
+### Adding/Removing Tags
 
 To add tags, select them and click `Add`. To remove tags, select them and click `Remove`.
 
 *Note: Transcriber will not run with no tags selected.*
 
-#### Parallel Conversion
+---
+### Parallel Conversion
 
 Enabling `Parallel Conversion (X Cores)` allows Transcriber to use all CPU cores to convert `X` files simultaneously.
 
 *Note: files will not necessarily be converted in the order specified. This has no impact on collation.*
 
-#### Collation
+---
+### Collation
 
 Enable `Collation` if an overall CSV file containing back-to-back data from all files is required.
 
 *Note: this produces an additional file.*
 
-#### Run
+---
+### Run
 
 It's as easy as that!
 
@@ -108,7 +116,7 @@ Converted files are created in the same directory as the original file and have 
 
     "ORIGINAL_NAME (Transcribed).csv"
 
-
+---
 
 ## License
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
