@@ -22,7 +22,7 @@ class Transcriber(QtWidgets.QMainWindow):
         super(Transcriber, self).__init__()
 
         self.file_selecter = FileSelecter(FileSelecterView())
-        self.file_selecter.connect_del_clicked(self.check_run)
+        self.file_selecter.connect_files_removed(self.check_run)
         self.file_selecter.connect_files_added(self.check_run)
 
         self.tag_selecter = TagSelecter(TagSelecterView(), TagSelecterModel())

@@ -3,6 +3,7 @@ from PyQt5 import QtWidgets, QtCore
 
 class FileSelecterView(QtWidgets.QWidget):
     files_added = QtCore.pyqtSignal()
+    files_removed = QtCore.pyqtSignal()
 
     def __init__(self):
         super(FileSelecterView, self).__init__()
@@ -24,8 +25,8 @@ class FileSelecterView(QtWidgets.QWidget):
             "Remove selected files. These will no longer be transcribed."
         )
 
-        self.connect_add_clicked(self.load_dat)
-        self.connect_del_clicked(self.del_current)
+        self.add_file.clicked.connect(self.load_dat)
+        self.del_file.clicked.connect(self.del_current)
         self.connect_current_changed(self.enable_deletion)
         self.files.doubleClicked.connect(self.del_current)
 
@@ -57,6 +58,7 @@ class FileSelecterView(QtWidgets.QWidget):
             self.files.takeItem(self.files.row(item))
         if not self.files.count():
             self.del_file.setEnabled(False)
+        self.files_removed.emit()
 
     def enable_deletion(self):
         self.del_file.setEnabled(True)
@@ -67,17 +69,11 @@ class FileSelecterView(QtWidgets.QWidget):
     def disconnect_files_added(self, slot):
         self.files_added.disconnect(slot)
 
-    def connect_add_clicked(self, slot):
-        self.add_file.clicked.connect(slot)
+    def connect_files_removed(self, slot):
+        self.files_removed.connect(slot)
 
-    def disconnect_add_clicked(self, slot):
-        self.add_file.clicked.disconnect(slot)
-
-    def connect_del_clicked(self, slot):
-        self.del_file.clicked.connect(slot)
-
-    def disconnect_del_clicked(self, slot):
-        self.del_file.clicked.disconnect(slot)
+    def disconnect_files_removed(self, slot):
+        self.files_removed.disconnect(slot)
 
     def connect_current_changed(self, slot):
         self.files.currentItemChanged.connect(slot)

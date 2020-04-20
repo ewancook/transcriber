@@ -24,17 +24,11 @@ class FileSelecter:
     def disconnect_files_added(self, slot):
         self.view.disconnect_files_added(slot)
 
-    def connect_add_clicked(self, slot):
-        self.view.connect_add_clicked(slot)
+    def connect_files_removed(self, slot):
+        self.view.connect_files_removed(slot)
 
-    def disconnect_add_clicked(self, slot):
-        self.view.disconnect_add_clicked(slot)
-
-    def connect_del_clicked(self, slot):
-        self.view.connect_del_clicked(slot)
-
-    def disconnect_del_clicked(self, slot):
-        self.view.disconnect_del_clicked(slot)
+    def disconnect_files_removed(self, slot):
+        self.view.disconnect_files_removed(slot)
 
     def connect_current_changed(self, slot):
         self.view.connect_current_changed(slot)
