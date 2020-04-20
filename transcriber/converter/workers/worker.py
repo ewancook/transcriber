@@ -10,7 +10,7 @@ class CSVWorker:
         self.filename = filename
         self.tags = tags
         self.tag_lookup = tag_lookup
-        self.total_tags = len(self.tag_lookup)
+        self.number_of_tags = len(self.tag_lookup)
 
     def work(self):
         self.convert()
@@ -21,7 +21,7 @@ class CSVWorker:
             lines = sorted([self.tag_lookup.index(t) for t in self.tags])
             lines_set = set(lines)
 
-            total_tags = self.total_tags
+            number_of_tags = self.number_of_tags
 
             with open(utils.transcribed_filename(self.filename), "w") as out:
                 tags_written = num_tags = len(lines)
@@ -31,7 +31,7 @@ class CSVWorker:
                     )
                 )
                 for i, line in enumerate(islice(file, 1, None)):
-                    if i % total_tags not in lines_set:
+                    if i % number_of_tags not in lines_set:
                         continue
                     if tags_written == num_tags:
                         date, time, _, val = utils.data_from_line(line)
@@ -48,7 +48,7 @@ class DBFWorker(CSVWorker):
         self.parser = Parser(
             required_fields=["Date", "Time", "Value"],
             required_tags=[self.tag_lookup.index(t) for t in self.tags],
-            total_tags=self.total_tags,
+            all_tags=tag_lookup,
         )
 
     def convert(self):

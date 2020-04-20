@@ -78,7 +78,7 @@ class SubclassedDBF(DBF):
             )
             row_skip_sequence = create_row_skip_sequence(
                 self.required_tags,
-                range(self.total_tags),
+                range(len(self.all_tags)),
                 self.header.recordlen,
             )
 
@@ -112,12 +112,12 @@ class Parser:
         required_fields,
         encoding="cp437",
         required_tags=[],
-        total_tags=[],
+        all_tags=[],
     ):
         self.required_fields = set(required_fields)
         self.encoding = encoding
         self.required_tags = set(required_tags)
-        self.total_tags = total_tags
+        self.all_tags = all_tags
 
     @property
     def tags(self):
@@ -141,7 +141,7 @@ class Parser:
             filename,
             self.required_fields,
             required_tags=self.required_tags,
-            total_tags=self.total_tags,
+            all_tags=self.all_tags,
             encoding=self.encoding,
             recfactory=None,
             raw=True,
