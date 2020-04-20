@@ -116,7 +116,7 @@ class Parser:
     ):
         self.required_fields = set(required_fields)
         self.encoding = encoding
-        self.required_tags = required_tags
+        self.required_tags = set(required_tags)
         self.total_tags = total_tags
 
     @property
