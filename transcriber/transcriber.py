@@ -16,6 +16,8 @@ from transcriber.converter.collator import Collator
 
 from PyQt5 import QtWidgets, QtCore
 
+VERSION = "{TRAVIS_TAG}"
+
 
 class Transcriber(QtWidgets.QMainWindow):
     def __init__(self):
@@ -59,7 +61,7 @@ class Transcriber(QtWidgets.QMainWindow):
         self._widget_list.addWidget(self.converter.view)
         self.setCentralWidget(QtWidgets.QWidget(self))
         self.centralWidget().setLayout(self._widget_list)
-        self.setWindowTitle("Transcriber v0.1")
+        self.setWindowTitle(f"Transcriber {VERSION}")
 
     def check_run(self):
         if self.tag_selecter.active_tags and self.file_selecter.filenames:

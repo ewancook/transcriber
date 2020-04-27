@@ -1,5 +1,7 @@
 from PyQt5 import QtWidgets, QtCore
 
+from transcriber.searchable_list.widget import SearchableListWidget
+
 
 class FileSelecterView(QtWidgets.QWidget):
     files_added = QtCore.pyqtSignal()
@@ -10,7 +12,9 @@ class FileSelecterView(QtWidgets.QWidget):
 
         self._layout = QtWidgets.QVBoxLayout()
 
-        self.files = QtWidgets.QListWidget(self)
+        self.files = SearchableListWidget(
+            self, search_text="Search Loaded Files"
+        )
         self.files.setSelectionMode(
             QtWidgets.QAbstractItemView.ExtendedSelection
         )
@@ -31,8 +35,6 @@ class FileSelecterView(QtWidgets.QWidget):
         self.files.doubleClicked.connect(self.del_current)
 
         self._layout.addWidget(self.add_file)
-        self._layout.addWidget(QtWidgets.QLabel())
-        self._layout.addWidget(QtWidgets.QLabel("Loaded:"))
         self._layout.addWidget(self.files)
         self._layout.addWidget(self.del_file)
         self.setLayout(self._layout)
