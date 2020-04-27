@@ -1,5 +1,7 @@
 from PyQt5 import QtWidgets, QtCore
 
+from transcriber.searchable_list.widget import SearchableListWidget
+
 
 class TagSelecterView(QtWidgets.QWidget):
     tag_added = QtCore.pyqtSignal()
@@ -15,11 +17,13 @@ class TagSelecterView(QtWidgets.QWidget):
             "Select a tag file to parse. File names typically end in '(Tagname).DAT'."
         )
 
-        self.tags = QtWidgets.QListWidget(self)
+        self.tags = SearchableListWidget(self, search_text="Search All Tags")
         self.tags.setSelectionMode(
             QtWidgets.QAbstractItemView.ExtendedSelection
         )
-        self.used = QtWidgets.QListWidget(self)
+        self.used = SearchableListWidget(
+            self, search_text="Search Current Tags"
+        )
         self.used.setSelectionMode(
             QtWidgets.QAbstractItemView.ExtendedSelection
         )
@@ -47,11 +51,9 @@ class TagSelecterView(QtWidgets.QWidget):
         left = QtWidgets.QVBoxLayout()
         right = QtWidgets.QVBoxLayout()
 
-        left.addWidget(QtWidgets.QLabel("All Tags:"))
         left.addWidget(self.tags)
         left.addWidget(self.add_tag)
 
-        right.addWidget(QtWidgets.QLabel("Current Tags:"))
         right.addWidget(self.used)
         right.addWidget(self.del_tag)
 

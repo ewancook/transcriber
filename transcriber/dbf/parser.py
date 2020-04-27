@@ -108,11 +108,7 @@ class SubclassedDBF(DBF):
 
 class Parser:
     def __init__(
-        self,
-        required_fields,
-        encoding="cp437",
-        required_tags=[],
-        all_tags=[],
+        self, required_fields, encoding="cp437", required_tags=[], all_tags=[],
     ):
         self.required_fields = set(required_fields)
         self.encoding = encoding
