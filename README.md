@@ -64,10 +64,10 @@ The completed build can be found in `dist/transcriber`.
 
 ---
 
-### Load DAT File(s)
+### Load Float File(s)
 
 
-Specify the FactoryTalk SE DAT files to transcribe by clicking `Load DAT File(s)`. These commonly have the format:
+Specify the FactoryTalk SE DAT files to transcribe by clicking `Load Float File(s)`. These commonly have the format:
 
     "DATE START_TIME (Float).DAT"
 
@@ -111,7 +111,7 @@ Enable `Collation` if an overall CSV file containing back-to-back data from all 
 
 It's as easy as that!
 
-Transcriber will attempt to parse all DAT files selected. An error message will be shown if files cannot be transcribed.
+Transcriber will attempt to parse all Float files selected. An error message will be shown if files cannot be transcribed.
 
 Transcribed files are created in the same directories as the original files and have the format:
 

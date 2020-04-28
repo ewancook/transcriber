@@ -14,7 +14,6 @@ jobs:
         - ARCHIVE_NAME=${FOLDER}.tar.gz
       install: &common_install
         - pip3 install -r requirements.txt
-        - pip3 install pyinstaller
       script: &common_script
         - sed -i "s/{TRAVIS_TAG}/${TRAVIS_TAG}/g" transcriber/transcriber.py
         - pyinstaller --name="transcriber" --windowed --onedir run.py

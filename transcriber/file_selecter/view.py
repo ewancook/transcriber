@@ -18,12 +18,12 @@ class FileSelecterView(QtWidgets.QWidget):
         self.files.setSelectionMode(
             QtWidgets.QAbstractItemView.ExtendedSelection
         )
-        self.add_file = QtWidgets.QPushButton("Load DAT File(s)", self)
+        self.add_file = QtWidgets.QPushButton("Load Float File(s)", self)
         self.del_file = QtWidgets.QPushButton("Remove", self)
         self.del_file.setEnabled(False)
 
         self.add_file.setToolTip(
-            "Select DAT files to transcribe. File names typically end in '(Float).DAT'."
+            "Select float files to transcribe. File names typically end in '(Float).DAT'."
         )
         self.del_file.setToolTip(
             "Remove selected files. These will no longer be transcribed."
