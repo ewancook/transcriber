@@ -1,3 +1,5 @@
+import mmap
+
 from dbfread import DBF
 
 
@@ -39,7 +41,8 @@ class SubclassedDBF(DBF):
         self.required_fields = tags
 
     def _iter_records_no_row_skipping(self, record_type=b" "):
-        with open(self.filename, "rb") as infile:
+        with open(self.filename, "rb") as _infile:
+            infile = mmap.mmap(_infile.fileno(), 0, prot=mmap.PROT_READ)
             skip_record = self._skip_record
             read = infile.read
             seek = infile.seek
@@ -64,9 +67,12 @@ class SubclassedDBF(DBF):
                     break
                 else:
                     skip_record(infile)
+            infile.close()
 
     def _iter_records(self, record_type=b" "):
-        with open(self.filename, "rb") as infile:
+        with open(self.filename, "rb") as _infile:
+            infile = mmap.mmap(_infile.fileno(), 0, prot=mmap.PROT_READ)
+
             skip_record = self._skip_record
             read = infile.read
             seek = infile.seek
@@ -100,6 +106,7 @@ class SubclassedDBF(DBF):
                     break
                 else:
                     skip_record(infile)
+            infile.close()
 
     def __len__(self):
         # TODO: why was this called (& slowing everything down)?
