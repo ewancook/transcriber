@@ -6,12 +6,12 @@ Rapidly convert FactoryTalk SE DAT files to useful CSV files.
 
 
 ## Features
-- Up to 8000 times faster than previous methods:
+- Up to 12,000 times faster than previous methods:
   
   |Method     |Time (Per File)|
   |-----------|--------------:|
   |Previous   |~240 s         |
-  |Transcriber|0.03 s         |
+  |Transcriber|0.02 s         |
 
   *Note: conversion time is hardware dependent and is linear with the number of tags selected and the DAT file size.
   The above was observed using a quad-core i5 laptop (ubuntu), with 1.6 GB/s read.*
@@ -26,12 +26,12 @@ Rapidly convert FactoryTalk SE DAT files to useful CSV files.
   |01/01/2020|00:00:08|5.97069597 |...                  |
   |...       |...     |...        |...                  |
 
-- Optimised DAT file parsing: up to 1600 times faster than stock `dbfread`:
+- Optimised DAT file parsing: up to 2400 times faster than stock `dbfread`:
   
   |Class     |Time (Per File)|
   |-----------|--------------:|
   |`dbfread.DBF`         |~38 s   |     |
-  |subclassed `dbfread.DBF`|0.022 s |         |
+  |subclassed `dbfread.DBF`|0.016 s |         |
 
 
 ## Latest Releases (Downloads)
