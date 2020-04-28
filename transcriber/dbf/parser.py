@@ -42,7 +42,7 @@ class SubclassedDBF(DBF):
 
     def _iter_records_no_row_skipping(self, record_type=b" "):
         with open(self.filename, "rb") as _infile:
-            infile = mmap.mmap(_infile.fileno(), 0, prot=mmap.PROT_READ)
+            infile = mmap.mmap(_infile.fileno(), 0, access=mmap.ACCESS_READ)
             skip_record = self._skip_record
             read = infile.read
             seek = infile.seek
@@ -71,7 +71,7 @@ class SubclassedDBF(DBF):
 
     def _iter_records(self, record_type=b" "):
         with open(self.filename, "rb") as _infile:
-            infile = mmap.mmap(_infile.fileno(), 0, prot=mmap.PROT_READ)
+            infile = mmap.mmap(_infile.fileno(), 0, access=mmap.ACCESS_READ)
 
             skip_record = self._skip_record
             read = infile.read
