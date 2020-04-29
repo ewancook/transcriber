@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-from multiprocessing import freeze_support
 import sys
+from multiprocessing import freeze_support
 
 from PyQt5 import QtWidgets
 

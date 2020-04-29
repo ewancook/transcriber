@@ -1,20 +1,18 @@
 from multiprocessing import cpu_count
 
-from transcriber.file_selecter.presenter import FileSelecter
-from transcriber.file_selecter.view import FileSelecterView
+from PyQt5 import QtCore, QtWidgets
 
-from transcriber.tag_selecter.presenter import TagSelecter
-from transcriber.tag_selecter.view import TagSelecterView
-from transcriber.tag_selecter.model import TagSelecterModel
-
-from transcriber.converter.presenter import Converter
-from transcriber.converter.view import ConverterView
+from transcriber.converter.collator import Collator
 from transcriber.converter.multiprocessing_model import (
     MultiProcessingConverterModel,
 )
-from transcriber.converter.collator import Collator
-
-from PyQt5 import QtWidgets, QtCore
+from transcriber.converter.presenter import Converter
+from transcriber.converter.view import ConverterView
+from transcriber.file_selecter.presenter import FileSelecter
+from transcriber.file_selecter.view import FileSelecterView
+from transcriber.tag_selecter.model import TagSelecterModel
+from transcriber.tag_selecter.presenter import TagSelecter
+from transcriber.tag_selecter.view import TagSelecterView
 
 VERSION = "{TRAVIS_TAG}"
 

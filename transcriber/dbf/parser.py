@@ -8,7 +8,6 @@ def create_row_skip_sequence(required, total, row_length):
     for item in total:
         if item in required:
             sequence.extend([(True, row_length - 1), [False, 1]])
-            continue
         elif len(sequence) and not sequence[-1][0]:
             sequence[-1][1] += row_length
         else:
@@ -25,7 +24,6 @@ def create_field_skip_sequence(required, total):
     for item in total:
         if item.name in required:
             sequence.append((item.name, item.length))
-            continue
         elif len(sequence) and not sequence[-1][0]:
             sequence[-1][1] += item.length
         else:
@@ -43,6 +41,7 @@ class SubclassedDBF(DBF):
     def _iter_records_no_row_skipping(self, record_type=b" "):
         with open(self.filename, "rb") as _infile:
             infile = mmap.mmap(_infile.fileno(), 0, access=mmap.ACCESS_READ)
+
             skip_record = self._skip_record
             read = infile.read
             seek = infile.seek
@@ -53,15 +52,17 @@ class SubclassedDBF(DBF):
                 self.required_fields, self.fields
             )
 
+            line_values = {}
+            clear_line_values = line_values.clear
             while True:
                 sep = read(1)
                 if sep == record_type:
-                    line_values = {}
+                    clear_line_values()
                     for name, length in field_skip_sequence:
-                        if not name:
-                            seek(length, 1)
-                        else:
+                        if name:
                             line_values[name] = read(length)
+                        else:
+                            seek(length, 1)
                     yield line_values
                 elif sep in (b"\x1a", b""):
                     break
@@ -88,6 +89,8 @@ class SubclassedDBF(DBF):
                 self.header.recordlen,
             )
 
+            line_values = {}
+            clear_line_values = line_values.clear
             while True:
                 sep = read(1)
                 if sep == record_type:
@@ -95,7 +98,7 @@ class SubclassedDBF(DBF):
                         if not read_row:
                             seek(length, 1)
                         else:
-                            line_values = {}
+                            clear_line_values()
                             for name, length in field_skip_sequence:
                                 if not name:
                                     seek(length, 1)

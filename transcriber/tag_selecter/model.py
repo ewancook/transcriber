@@ -1,6 +1,6 @@
-from transcriber.dbf.parser import Parser
-
 from PyQt5 import QtCore
+
+from transcriber.dbf.parser import Parser
 
 
 class TagSelecterModel(QtCore.QObject):
