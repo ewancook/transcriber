@@ -55,15 +55,15 @@ dbf_table_format = "Date C(8); Time C(8); Mlltm N(3,0); TagIndex N(1,0); Value C
 def create_dbf_file(func):
     @functools.wraps(func)
     def wraps(*args, **kwargs):
-        with tempfile.NamedTemporaryFile() as dbf_file:
-            table = dbf.Table(dbf_file.name, dbf_table_format, dbf_type="db3")
-            table.open(mode=dbf.READ_WRITE)
-            for row in dbf_rows:
-                table.append(row)
-            table.close()
-            kwargs["dbf_filename"] = dbf_file.name
-            func(*args, **kwargs)
-
+        dbf_file = tempfile.NamedTemporaryFile(delete=False)
+        dbf_file.close()
+        table = dbf.Table(dbf_file.name, dbf_table_format, dbf_type="db3")
+        table.open(mode=dbf.READ_WRITE)
+        for row in dbf_rows:
+            table.append(row)
+        table.close()
+        kwargs["dbf_filename"] = dbf_file.name
+        func(*args, **kwargs)
     return wraps
 
 
