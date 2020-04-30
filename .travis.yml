@@ -14,6 +14,8 @@ jobs:
         - ARCHIVE_NAME=${FOLDER}.tar.gz
       install: &common_install
         - pip3 install -r requirements.txt
+      before_script:
+        - python3 -m unittest discover
       script: &common_script
         - sed -i "s/{TRAVIS_TAG}/${TRAVIS_TAG}/g" transcriber/transcriber.py
         - pyinstaller --name="transcriber" --windowed --onedir run.py
@@ -40,6 +42,8 @@ jobs:
         - ARCHIVE_NAME=${FOLDER}.zip
       install:
         - *common_install
+      before_script:
+        - python -m unittest discover
       script:
         - *common_script
       before_deploy:

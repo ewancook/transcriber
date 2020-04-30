@@ -27,13 +27,13 @@ class CSVWorker:
                 _input_csv.fileno(), 0, access=mmap.ACCESS_READ
             )
 
-            lines = sorted([self.tag_lookup.index(t) for t in self.tags])
             with open(
                 utils.transcribed_filename(self.filename), "w"
             ) as csv_file:
-                write_csv(csv_file, self.generate_csv(input_csv, lines))
+                write_csv(csv_file, self.generate_csv(input_csv))
 
-    def generate_csv(self, input_csv, lines):
+    def generate_csv(self, input_csv):
+        lines = sorted([self.tag_lookup.index(t) for t in self.tags])
         lines_set = set(lines)
         number_of_tags = self.number_of_tags
 
@@ -63,11 +63,11 @@ class DBFWorker(CSVWorker):
 
     def convert(self):
         table = self.parser.parse_selection(self.filename)
-        lines = sorted([self.tag_lookup.index(t) for t in self.tags])
         with open(utils.transcribed_filename(self.filename), "w") as csv_file:
-            write_csv(csv_file, self.generate_csv(table, lines))
+            write_csv(csv_file, self.generate_csv(table))
 
-    def generate_csv(self, table, lines):
+    def generate_csv(self, table):
+        lines = sorted([self.tag_lookup.index(t) for t in self.tags])
         double_struct = Struct("<d")
         unpack = double_struct.unpack
 
