@@ -1,8 +1,15 @@
 from itertools import islice
+from multiprocessing import Process
 
 from PyQt5 import QtCore
 
 from transcriber.converter.workers import utils
+
+
+def _collate(save_file, filenames):
+    collate_files(
+        save_file, [utils.transcribed_filename(f) for f in filenames],
+    )
 
 
 def collate_files(collated_file, filenames):
@@ -25,20 +32,31 @@ class Collator(QtCore.QObject):
     collation_finished = QtCore.pyqtSignal()
 
     start = QtCore.pyqtSignal(str, list)
+    terminate_collation = QtCore.pyqtSignal()
 
     def __init__(self):
         super(Collator, self).__init__()
         self.start.connect(self.collate)
+        self.terminate_collation.connect(
+            self.terminate, QtCore.Qt.DirectConnection
+        )
+        self.process = None
 
     @QtCore.pyqtSlot(str, list)
     def collate(self, save_file, filenames):
         self.collation_started.emit()
         with open(save_file, "w") as collated_file:
-            collate_files(
-                collated_file,
-                [utils.transcribed_filename(f) for f in filenames],
+            self.process = Process(
+                target=_collate, args=(collated_file, filenames,)
             )
+            self.process.start()
+            self.process.join()
         self.collation_finished.emit()
+
+    @QtCore.pyqtSlot()
+    def terminate(self):
+        if self.process is not None:
+            self.process.terminate()
 
     def connect_collation_started(self, slot):
         self.collation_started.connect(slot)

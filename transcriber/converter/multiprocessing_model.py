@@ -5,6 +5,8 @@ from PyQt5 import QtCore
 from transcriber.converter import model
 from transcriber.converter.workers.worker import DBFWorker
 
+TERMINATE = 2
+
 
 class MultiProcessingConverterModel(model.ConverterModel):
     def __init__(self):
@@ -34,12 +36,12 @@ class MultiProcessingConverterModel(model.ConverterModel):
         ]
         for file, error in zip(unsuccessful, self.exceptions):
             self.conversion_error.emit((file, error))
-        self.conversion_finished.emit()
+        self.conversion_finished.emit(self.pool._state != TERMINATE)
 
     @QtCore.pyqtSlot()
     def terminate(self):
-        self.pool.terminate()
-        self.conversion_finished.emit()
+        if self.pool is not None:
+            self.pool.terminate()
 
     def register_successful_conversion(self, filename):
         self.successful_conversions.append(filename)

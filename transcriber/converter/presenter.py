@@ -16,8 +16,13 @@ class Converter(QtCore.QObject):
         self.collator.moveToThread(self.model_thread)
 
         self.connect_conversion_started(self.view.set_running)
+        self.connect_collation_started(self.view.set_running)
+
         self.connect_conversion_finished(self.view.set_finished)
+        self.connect_collation_finished(self.view.set_finished)
+
         self.connect_cancel_clicked(self.model.terminate_work.emit)
+        self.connect_cancel_clicked(self.collator.terminate_collation.emit)
         self.connect_cancel_clicked(self.view.reset_progress)
 
     def convert(self, filenames, tags, num_cpu, tag_lookup):

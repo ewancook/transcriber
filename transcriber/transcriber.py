@@ -75,7 +75,9 @@ class Transcriber(QtWidgets.QMainWindow):
             self.tag_selecter.tags,
         )
 
-    def collate(self):
+    def collate(self, successful):
+        if not successful:
+            return
         if self.converter.collate_files and len(self.conversion_errors) < len(
             self.file_selecter.filenames
         ):
