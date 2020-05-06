@@ -29,8 +29,8 @@ class Converter(QtCore.QObject):
         self.view.set_progress_range(0, len(filenames))
         self.model.start.emit(filenames, tags, num_cpu, tag_lookup)
 
-    def collate(self, save_file, filenames):
-        self.collator.start.emit(save_file, filenames)
+    def collate(self, filenames):
+        self.collator.start.emit(self.view.collated_file, filenames)
 
     @property
     def multithreaded(self):

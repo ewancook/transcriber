@@ -81,13 +81,7 @@ class Transcriber(QtWidgets.QMainWindow):
         if self.converter.collate_files and len(self.conversion_errors) < len(
             self.file_selecter.filenames
         ):
-            save_file, _ = QtWidgets.QFileDialog.getSaveFileName(
-                parent=self,
-                caption="Select Output File - Collated CSV",
-                filter="CSV (*.csv)",
-            )
-            if save_file:
-                self.converter.collate(save_file, self.file_selecter.filenames)
+            self.converter.collate(self.file_selecter.filenames)
 
     def disable_all(self):
         self.file_selecter.disable_view()
