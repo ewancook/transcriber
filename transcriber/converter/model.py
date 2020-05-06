@@ -6,6 +6,7 @@ class ConverterModel(QtCore.QObject):
     conversion_finished = QtCore.pyqtSignal()
     conversion_error = QtCore.pyqtSignal(tuple)
     conversion_update = QtCore.pyqtSignal()
+    terminate_work = QtCore.pyqtSignal()
 
     start = QtCore.pyqtSignal(list, set, int, list)
 
@@ -13,6 +14,7 @@ class ConverterModel(QtCore.QObject):
         super(ConverterModel, self).__init__()
         self.total_files = 0
         self.start.connect(self.convert)
+        self.terminate_work.connect(self.terminate, QtCore.Qt.DirectConnection)
 
     def update_conversion_total(self):
         self.conversion_update.emit()

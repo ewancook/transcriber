@@ -15,6 +15,11 @@ class Converter(QtCore.QObject):
 
         self.collator.moveToThread(self.model_thread)
 
+        self.connect_conversion_started(self.view.set_running)
+        self.connect_conversion_finished(self.view.set_finished)
+        self.connect_cancel_clicked(self.model.terminate_work.emit)
+        self.connect_cancel_clicked(self.view.reset_progress)
+
     def convert(self, filenames, tags, num_cpu, tag_lookup):
         self.view.set_progress_range(0, len(filenames))
         self.model.start.emit(filenames, tags, num_cpu, tag_lookup)
@@ -39,11 +44,23 @@ class Converter(QtCore.QObject):
     def enable_run(self):
         self.view.enable_run()
 
+    def disable_view_except_run(self):
+        self.view.disable_view_except_run()
+
+    def enable_view_except_run(self):
+        self.view.enable_view_except_run()
+
     def connect_run_clicked(self, slot):
         self.view.connect_run_clicked(slot)
 
     def disconnect_run_clicked(self, slot):
         self.view.disconnect_run_clicked(slot)
+
+    def connect_cancel_clicked(self, slot):
+        self.view.connect_cancel_clicked(slot)
+
+    def disconnect_cancel_clicked(self, slot):
+        self.view.disconnect_cancel_clicked(slot)
 
     def connect_conversion_started(self, slot):
         self.model.connect_conversion_started(slot)

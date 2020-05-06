@@ -51,6 +51,12 @@ class TagSelecter:
     def clear_new(self):
         self.view.clear_new()
 
+    def disable_view(self):
+        self.view.setEnabled(False)
+
+    def enable_view(self):
+        self.view.setEnabled(True)
+
     def connect_load_clicked(self, slot):
         self.view.connect_load_clicked(slot)
 

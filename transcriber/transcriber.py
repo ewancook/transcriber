@@ -88,10 +88,14 @@ class Transcriber(QtWidgets.QMainWindow):
                 self.converter.collate(save_file, self.file_selecter.filenames)
 
     def disable_all(self):
-        self.centralWidget().setEnabled(False)
+        self.file_selecter.disable_view()
+        self.tag_selecter.disable_view()
+        self.converter.disable_view_except_run()
 
     def enable_all(self):
-        self.centralWidget().setEnabled(True)
+        self.file_selecter.enable_view()
+        self.tag_selecter.enable_view()
+        self.converter.enable_view_except_run()
 
     def _append_conversion_error(self, error):
         self.conversion_errors.append(error)

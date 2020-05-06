@@ -18,6 +18,12 @@ class FileSelecter:
     def enable_deletion(self):
         self.view.enable_deletion()
 
+    def disable_view(self):
+        self.view.setEnabled(False)
+
+    def enable_view(self):
+        self.view.setEnabled(True)
+
     def connect_files_added(self, slot):
         self.view.connect_files_added(slot)
 

@@ -1,9 +1,12 @@
 import multiprocessing
 
-from PyQt5 import QtWidgets
+from PyQt5 import QtWidgets, QtCore
 
 
 class ConverterView(QtWidgets.QWidget):
+    run_clicked = QtCore.pyqtSignal()
+    cancel_clicked = QtCore.pyqtSignal()
+
     def __init__(self):
         super(ConverterView, self).__init__()
 
@@ -25,7 +28,9 @@ class ConverterView(QtWidgets.QWidget):
         )
 
         self.run = QtWidgets.QPushButton("Run", self)
+        self.run.clicked.connect(self.emit_run_or_cancel)
         self.run.setEnabled(False)
+        self.running = False
 
         self.run.setToolTip(
             "Transcribe the loaded files using the selected tags.\n\nTranscribed files are created in the same directories as the original files and have the format:\n\t'ORIGINAL_NAME (Transcribed).csv'"
@@ -68,8 +73,39 @@ class ConverterView(QtWidgets.QWidget):
         self.progress_value += 1
         self.progress.setValue(self.progress_value)
 
+    def set_running(self):
+        self.running = True
+        self.run.setText("Cancel")
+
+    def set_finished(self):
+        self.running = False
+        self.run.setText("Run")
+
+    def emit_run_or_cancel(self):
+        if self.running:
+            self.cancel_clicked.emit()
+        else:
+            self.run_clicked.emit()
+
+    def _change_state_of_widgets_except_run(self, state):
+        self.progress.setEnabled(state)
+        self.multi.setEnabled(state)
+        self.collate.setEnabled(state)
+
+    def disable_view_except_run(self):
+        self._change_state_of_widgets_except_run(False)
+
+    def enable_view_except_run(self):
+        self._change_state_of_widgets_except_run(True)
+
     def connect_run_clicked(self, slot):
-        self.run.clicked.connect(slot)
+        self.run_clicked.connect(slot)
 
     def disconnect_run_clicked(self, slot):
-        self.run.clicked.disconnect(slot)
+        self.run_clicked.disconnect(slot)
+
+    def connect_cancel_clicked(self, slot):
+        self.cancel_clicked.connect(slot)
+
+    def disconnect_cancel_clicked(self, slot):
+        self.cancel_clicked.disconnect(slot)
