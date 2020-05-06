@@ -39,7 +39,9 @@ class Transcriber(QtWidgets.QMainWindow):
         self.converter.connect_run_clicked(self.converter.reset_progress)
         self.converter.connect_run_clicked(self.convert)
         self.converter.connect_conversion_started(self.disable_all)
-        self.converter.connect_conversion_finished(self.enable_all)
+        self.converter.connect_conversion_finished(
+            self._enable_if_errors_or_no_collation
+        )
         self.converter.connect_conversion_finished(self.collate)
         self.converter.connect_conversion_finished(
             self._handle_conversion_errors
@@ -77,16 +79,18 @@ class Transcriber(QtWidgets.QMainWindow):
 
     def collate(self, successful):
         if not successful:
-            return
-        if self.converter.collate_files and len(self.conversion_errors) < len(
-            self.file_selecter.filenames
-        ):
+            self.enable_all()
+        elif self.converter.collate_files and not len(self.conversion_errors):
             self.converter.collate(self.file_selecter.filenames)
 
     def disable_all(self):
         self.file_selecter.disable_view()
         self.tag_selecter.disable_view()
         self.converter.disable_view_except_run()
+
+    def _enable_if_errors_or_no_collation(self):
+        if not self.converter.collate_files or len(self.conversion_errors):
+            self.enable_all()
 
     def enable_all(self):
         self.file_selecter.enable_view()

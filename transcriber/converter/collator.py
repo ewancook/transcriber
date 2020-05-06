@@ -29,7 +29,7 @@ def append_file_to_collated(collated_file, file_to_append):
 
 class Collator(QtCore.QObject):
     collation_started = QtCore.pyqtSignal()
-    collation_finished = QtCore.pyqtSignal()
+    collation_finished = QtCore.pyqtSignal(bool)
 
     start = QtCore.pyqtSignal(str, list)
     terminate_collation = QtCore.pyqtSignal()
@@ -41,6 +41,7 @@ class Collator(QtCore.QObject):
             self.terminate, QtCore.Qt.DirectConnection
         )
         self.process = None
+        self.state = False
 
     @QtCore.pyqtSlot(str, list)
     def collate(self, save_file, filenames):
@@ -50,13 +51,15 @@ class Collator(QtCore.QObject):
                 target=_collate, args=(collated_file, filenames,)
             )
             self.process.start()
+            self.state = True
             self.process.join()
-        self.collation_finished.emit()
+        self.collation_finished.emit(self.state)
 
     @QtCore.pyqtSlot()
     def terminate(self):
         if self.process is not None:
             self.process.terminate()
+            self.state = False
 
     def connect_collation_started(self, slot):
         self.collation_started.connect(slot)

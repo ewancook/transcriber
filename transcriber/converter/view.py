@@ -65,6 +65,7 @@ class ConverterView(QtWidgets.QWidget):
         self.run.setEnabled(False)
 
     def reset_progress(self):
+        self.progress.setFormat("%p%")
         self.progress_value = 0
         self.progress.reset()
 
@@ -74,6 +75,13 @@ class ConverterView(QtWidgets.QWidget):
     def update_progress(self):
         self.progress_value += 1
         self.progress.setValue(self.progress_value)
+
+    def set_progress_finished(self):
+        self.progress.setFormat("%p%")
+        self.progress.setValue(self.progress.maximum())
+
+    def set_progress_collating(self):
+        self.progress.setFormat("Collating")
 
     def set_running(self):
         self.running = True

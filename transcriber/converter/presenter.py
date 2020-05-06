@@ -17,13 +17,25 @@ class Converter(QtCore.QObject):
 
         self.connect_conversion_started(self.view.set_running)
         self.connect_collation_started(self.view.set_running)
+        self.connect_collation_started(self.view.set_progress_collating)
 
-        self.connect_conversion_finished(self.view.set_finished)
-        self.connect_collation_finished(self.view.set_finished)
+        self.connect_conversion_finished(self.handle_conversion_finished)
+        self.connect_collation_finished(self.handle_collation_finished)
 
         self.connect_cancel_clicked(self.model.terminate_work.emit)
         self.connect_cancel_clicked(self.collator.terminate_collation.emit)
-        self.connect_cancel_clicked(self.view.reset_progress)
+
+    def handle_conversion_finished(self, successful):
+        if not successful:
+            self.reset_progress()
+        self.view.set_finished()  # must always set_finished() because there may be conversion errors
+
+    def handle_collation_finished(self, successful):
+        if successful:
+            self.view.set_progress_finished()
+        else:
+            self.reset_progress()
+        self.view.set_finished()
 
     def convert(self, filenames, tags, num_cpu, tag_lookup):
         self.view.set_progress_range(0, len(filenames))
