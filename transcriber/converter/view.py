@@ -123,11 +123,5 @@ class ConverterView(QtWidgets.QWidget):
     def connect_run_clicked(self, slot):
         self.run_clicked.connect(slot)
 
-    def disconnect_run_clicked(self, slot):
-        self.run_clicked.disconnect(slot)
-
     def connect_cancel_clicked(self, slot):
         self.cancel_clicked.connect(slot)
-
-    def disconnect_cancel_clicked(self, slot):
-        self.cancel_clicked.disconnect(slot)

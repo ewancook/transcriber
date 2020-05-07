@@ -20,7 +20,6 @@ class MultiProcessingConverterModel(model.ConverterModel):
         self.successful_conversions = []
         self.exceptions = []
         self.pool = Pool(processes=num_cpu)
-        self.total_files = len(filenames)
         self.conversion_started.emit()
         for filename in filenames:
             worker = DBFWorker(filename, tags, tag_lookup)

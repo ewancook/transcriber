@@ -70,47 +70,23 @@ class Converter(QtCore.QObject):
     def connect_run_clicked(self, slot):
         self.view.connect_run_clicked(slot)
 
-    def disconnect_run_clicked(self, slot):
-        self.view.disconnect_run_clicked(slot)
-
     def connect_cancel_clicked(self, slot):
         self.view.connect_cancel_clicked(slot)
-
-    def disconnect_cancel_clicked(self, slot):
-        self.view.disconnect_cancel_clicked(slot)
 
     def connect_conversion_started(self, slot):
         self.model.connect_conversion_started(slot)
 
-    def disconnect_conversion_started(self, slot):
-        self.model.disconnect_conversion_started(slot)
-
     def connect_conversion_finished(self, slot):
         self.model.connect_conversion_finished(slot)
-
-    def disconnect_conversion_finished(self, slot):
-        self.model.disconnect_conversion_finished(slot)
 
     def connect_conversion_error(self, slot):
         self.model.connect_conversion_error(slot)
 
-    def disconnect_conversion_error(self, slot):
-        self.model.disconnect_conversion_error(slot)
-
     def connect_conversion_update(self, slot):
         self.model.connect_conversion_update(slot)
-
-    def disconnect_conversion_update(self, slot):
-        self.model.disconnect_conversion_update(slot)
 
     def connect_collation_started(self, slot):
         self.collator.connect_collation_started(slot)
 
-    def disconnect_collation_started(self, slot):
-        self.collator.disconnect_collation_started(slot)
-
     def connect_collation_finished(self, slot):
         self.collator.connect_collation_finished(slot)
-
-    def disconnect_collation_finished(self, slot):
-        self.collator.disconnect_collation_finished(slot)

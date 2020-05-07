@@ -129,10 +129,6 @@ class Parser:
     def tags(self):
         return self.required_fields
 
-    @tags.setter
-    def set_tags(self, required_fields):
-        self.required_fields = set(required_fields)
-
     def parse_all(self, filename):
         return SubclassedDBF(
             filename,

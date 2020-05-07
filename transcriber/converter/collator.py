@@ -64,11 +64,5 @@ class Collator(QtCore.QObject):
     def connect_collation_started(self, slot):
         self.collation_started.connect(slot)
 
-    def disconnect_collation_started(self, slot):
-        self.collation_started.disconnect(slot)
-
     def connect_collation_finished(self, slot):
         self.collation_finished.connect(slot)
-
-    def disconnect_collation_finished(self, slot):
-        self.collation_finished.disconnect(slot)

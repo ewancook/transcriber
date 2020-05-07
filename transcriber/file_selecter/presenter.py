@@ -27,17 +27,8 @@ class FileSelecter:
     def connect_files_added(self, slot):
         self.view.connect_files_added(slot)
 
-    def disconnect_files_added(self, slot):
-        self.view.disconnect_files_added(slot)
-
     def connect_files_removed(self, slot):
         self.view.connect_files_removed(slot)
 
-    def disconnect_files_removed(self, slot):
-        self.view.disconnect_files_removed(slot)
-
     def connect_current_changed(self, slot):
         self.view.connect_current_changed(slot)
-
-    def disconnect_current_changed(self, slot):
-        self.view.disconnect_current_changed(slot)

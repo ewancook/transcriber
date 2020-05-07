@@ -68,17 +68,8 @@ class FileSelecterView(QtWidgets.QWidget):
     def connect_files_added(self, slot):
         self.files_added.connect(slot)
 
-    def disconnect_files_added(self, slot):
-        self.files_added.disconnect(slot)
-
     def connect_files_removed(self, slot):
         self.files_removed.connect(slot)
 
-    def disconnect_files_removed(self, slot):
-        self.files_removed.disconnect(slot)
-
     def connect_current_changed(self, slot):
         self.files.currentItemChanged.connect(slot)
-
-    def disconnect_current_changed(self, slot):
-        self.files.currentItemChanged.disconnect(slot)

@@ -118,17 +118,8 @@ class TagSelecterView(QtWidgets.QWidget):
     def connect_load_clicked(self, slot):
         self.load.clicked.connect(slot)
 
-    def disconnect_load_clicked(self, slot):
-        self.load.clicked.disconnect(slot)
-
     def connect_tag_added(self, slot):
         self.tag_added.connect(slot)
 
-    def disconnect_tag_added(self, slot):
-        self.tag_added.disconnect(slot)
-
     def connect_tag_deleted(self, slot):
         self.tag_deleted.connect(slot)
-
-    def disconnect_tag_deleted(self, slot):
-        self.tag_deleted.disconnect(slot)
