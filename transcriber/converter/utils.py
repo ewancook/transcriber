@@ -1,7 +1,5 @@
 from itertools import islice, takewhile
 
-from PyQt5 import QtWidgets
-
 from transcriber.dbf.parser import Parser, SubclassedDBF
 
 TAG_INDEX = "TagIndex"
