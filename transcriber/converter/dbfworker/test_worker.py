@@ -3,8 +3,7 @@ import struct
 import unittest
 from unittest import mock
 
-from transcriber.converter.workers import worker
-from transcriber.dbf.parser import Parser
+from transcriber.converter.dbfworker import worker
 
 
 def _generate_row(date, time, input_value):
@@ -41,8 +40,10 @@ class TestDBFWorker(unittest.TestCase):
         csv_file.seek(0)
         self.assertEqual(csv_file.read(), self.test_table_usual_output)
 
-    @mock.patch("transcriber.converter.workers.worker.write_csv")
-    @mock.patch("transcriber.converter.workers.worker.DBFWorker.generate_csv")
+    @mock.patch("transcriber.converter.dbfworker.worker.write_csv")
+    @mock.patch(
+        "transcriber.converter.dbfworker.worker.DBFWorker.generate_csv"
+    )
     @mock.patch("transcriber.dbf.parser.Parser.parse_selection")
     @mock.patch("builtins.open", new_callable=mock.mock_open)
     def test_convert(
@@ -57,6 +58,15 @@ class TestDBFWorker(unittest.TestCase):
         mock_parse_selection.assert_called_with(
             self.worker.filename, [0, 1, 4], 5
         )
+        self.worker.total_tags -= 1
+        self.worker.convert()
+        mock_parse_selection.assert_called_with(
+            self.worker.filename, [0, 1, 4], 4
+        )
+
+    def test_total_tags_is_set(self):
+        _worker = worker.DBFWorker("filename", [], [], total_tags=10)
+        self.assertEqual(_worker.total_tags, 10)
 
     def test_generate_csv(self):
         self.assertEqual(
@@ -68,8 +78,3 @@ class TestDBFWorker(unittest.TestCase):
         table = []
         expected = "Date,Time,First,Second,Fifth"
         self.assertEqual("".join(self.worker.generate_csv(table)), expected)
-
-
-class TestCSVWorker(unittest.TestCase):
-    def setUp(self):
-        pass

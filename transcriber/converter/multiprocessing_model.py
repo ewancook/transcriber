@@ -3,9 +3,13 @@ from multiprocessing import Pool
 from PyQt5 import QtCore
 
 from transcriber.converter import model
-from transcriber.converter.workers.worker import DBFWorker
+from transcriber.converter.dbfworker.worker import DBFWorker
 
 TERMINATE = 2
+
+
+def create_dbf_worker(self, *args, **kwargs):
+    return DBFWorker(*args, **kwargs)
 
 
 class MultiProcessingConverterModel(model.ConverterModel):
@@ -22,7 +26,7 @@ class MultiProcessingConverterModel(model.ConverterModel):
         self.pool = Pool(processes=num_cpu)
         self.conversion_started.emit()
         for filename, total_tags in filenames_to_tags:
-            worker = DBFWorker(
+            worker = create_dbf_worker(
                 filename, tags, tag_lookup, total_tags=total_tags
             )
             self.pool.apply_async(

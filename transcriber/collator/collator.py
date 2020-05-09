@@ -3,7 +3,7 @@ from multiprocessing import Process
 
 from PyQt5 import QtCore
 
-from transcriber.converter.workers import utils
+from transcriber.converter.dbfworker import utils
 
 
 def _collate(save_file, filenames):

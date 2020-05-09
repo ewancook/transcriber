@@ -1,8 +1,6 @@
-import mmap
-from itertools import islice
 from struct import Struct
 
-from transcriber.converter.workers import utils
+from transcriber.converter.dbfworker import utils
 from transcriber.dbf.parser import Parser
 
 
@@ -10,7 +8,7 @@ def write_csv(csv_file, csv_data):
     csv_file.write("".join(csv_data))
 
 
-class CSVWorker:
+class Worker:
     def __init__(self, filename, tags, tag_lookup, total_tags=0):
         self.filename = filename
         self.tags = tags
@@ -21,38 +19,8 @@ class CSVWorker:
         self.convert()
         return self.filename
 
-    def convert(self):
-        with open(self.filename) as _input_csv:
-            input_csv = mmap.mmap(
-                _input_csv.fileno(), 0, access=mmap.ACCESS_READ
-            )
 
-            with open(
-                utils.transcribed_filename(self.filename), "w"
-            ) as csv_file:
-                write_csv(csv_file, self.generate_csv(input_csv))
-
-    def generate_csv(self, input_csv):
-        lines = sorted([self.tag_lookup.index(t) for t in self.tags])
-        lines_set = set(lines)
-        total_tags = self.total_tags
-
-        yield ",".join(["Date", "Time", *[self.tag_lookup[i] for i in lines]])
-
-        tags_written = num_tags = len(lines)
-        for i, line in enumerate(islice(input_csv, 1, None)):
-            if i % total_tags not in lines_set:
-                continue
-            if tags_written == num_tags:
-                date, time, _, val = utils.data_from_line(line)
-                yield f"\n{date},{time},{val}"
-                tags_written = 1
-            else:
-                yield f",{utils.val_from_line(line)}"
-                tags_written += 1
-
-
-class DBFWorker(CSVWorker):
+class DBFWorker(Worker):
     def __init__(self, filename, tags, tag_lookup, total_tags=0):
         super(DBFWorker, self).__init__(filename, tags, tag_lookup, total_tags)
         self.parser = Parser(required_fields=["Date", "Time", "Value"])

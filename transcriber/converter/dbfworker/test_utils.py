@@ -1,6 +1,6 @@
 import unittest
 
-from transcriber.converter.workers import utils
+from transcriber.converter.dbfworker import utils
 
 
 class TestUtils(unittest.TestCase):
