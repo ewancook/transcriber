@@ -11,11 +11,11 @@ def write_csv(csv_file, csv_data):
 
 
 class CSVWorker:
-    def __init__(self, filename, tags, tag_lookup):
+    def __init__(self, filename, tags, tag_lookup, total_tags=0):
         self.filename = filename
         self.tags = tags
         self.tag_lookup = tag_lookup
-        self.number_of_tags = len(self.tag_lookup)
+        self.total_tags = total_tags if total_tags else len(tag_lookup)
 
     def work(self):
         self.convert()
@@ -35,13 +35,13 @@ class CSVWorker:
     def generate_csv(self, input_csv):
         lines = sorted([self.tag_lookup.index(t) for t in self.tags])
         lines_set = set(lines)
-        number_of_tags = self.number_of_tags
+        total_tags = self.total_tags
 
         yield ",".join(["Date", "Time", *[self.tag_lookup[i] for i in lines]])
 
         tags_written = num_tags = len(lines)
         for i, line in enumerate(islice(input_csv, 1, None)):
-            if i % number_of_tags not in lines_set:
+            if i % total_tags not in lines_set:
                 continue
             if tags_written == num_tags:
                 date, time, _, val = utils.data_from_line(line)
@@ -53,16 +53,21 @@ class CSVWorker:
 
 
 class DBFWorker(CSVWorker):
-    def __init__(self, filename, tags, tag_lookup):
-        super(DBFWorker, self).__init__(filename, tags, tag_lookup)
-        self.parser = Parser(
-            required_fields=["Date", "Time", "Value"],
-            required_tags=[self.tag_lookup.index(t) for t in self.tags],
-            all_tags=tag_lookup,
+    def __init__(self, filename, tags, tag_lookup, total_tags=0):
+        super(DBFWorker, self).__init__(filename, tags, tag_lookup, total_tags)
+        self.parser = Parser(required_fields=["Date", "Time", "Value"])
+        self.required_tag_indices = [
+            self.tag_lookup.index(t) for t in self.tags
+        ]
+        self.total_tags = total_tags if total_tags else len(tag_lookup)
+
+    def _parse_selection(self, filename):
+        return self.parser.parse_selection(
+            filename, self.required_tag_indices, self.total_tags
         )
 
     def convert(self):
-        table = self.parser.parse_selection(self.filename)
+        table = self._parse_selection(self.filename)
         with open(utils.transcribed_filename(self.filename), "w") as csv_file:
             write_csv(csv_file, self.generate_csv(table))
 

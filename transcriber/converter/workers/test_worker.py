@@ -54,7 +54,9 @@ class TestDBFWorker(unittest.TestCase):
     ):
         self.worker.convert()
         mock_write_csv.assert_called_with(mock_file(), mock_generate_csv())
-        mock_parse_selection.assert_called_with(self.worker.filename)
+        mock_parse_selection.assert_called_with(
+            self.worker.filename, [0, 1, 4], 5
+        )
 
     def test_generate_csv(self):
         self.assertEqual(

@@ -17,13 +17,11 @@ class TagSelecterView(QtWidgets.QWidget):
             "Select a tag file to parse. File names typically end in '(Tagname).DAT'."
         )
 
-        self.tags = SearchableListWidget(self, search_text="Search All Tags")
+        self.tags = SearchableListWidget(self, list_name="All Tags")
         self.tags.setSelectionMode(
             QtWidgets.QAbstractItemView.ExtendedSelection
         )
-        self.used = SearchableListWidget(
-            self, search_text="Search Current Tags"
-        )
+        self.used = SearchableListWidget(self, list_name="Current Tags")
         self.used.setSelectionMode(
             QtWidgets.QAbstractItemView.ExtendedSelection
         )

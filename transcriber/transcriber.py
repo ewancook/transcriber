@@ -2,7 +2,7 @@ from multiprocessing import cpu_count
 
 from PyQt5 import QtCore, QtWidgets
 
-from transcriber.converter.collator import Collator
+from transcriber.collator.collator import Collator
 from transcriber.converter.multiprocessing_model import (
     MultiProcessingConverterModel,
 )
@@ -70,9 +70,16 @@ class Transcriber(QtWidgets.QMainWindow):
             self.converter.disable_run()
 
     def convert(self):
+        self.disable_all()
+        run, filenames_to_tags = self._run_with_differing_tags(
+            self.file_selecter.filenames, len(self.tag_selecter.tags)
+        )
+        self.enable_all()
+        if not run:
+            return
         self.converter.convert(
-            self.file_selecter.filenames,
-            set(self.tag_selecter.active_tags),
+            filenames_to_tags,
+            self.tag_selecter.active_tags,
             cpu_count() if self.converter.multithreaded else 1,
             self.tag_selecter.tags,
         )
@@ -100,16 +107,67 @@ class Transcriber(QtWidgets.QMainWindow):
     def _append_conversion_error(self, error):
         self.conversion_errors.append(error)
 
+    def _run_with_differing_tags(self, filenames, tags_in_tag_file):
+        total_tag_map = {}
+        filenames_to_tags = list(
+            self.converter.determine_total_tags(filenames)
+        )
+        for filename, total_tags in filenames_to_tags:
+            try:
+                total_tag_map[total_tags].append(filename)
+            except KeyError:
+                total_tag_map[total_tags] = [filename]
+        if (
+            len(total_tag_map) == 1
+            and list(total_tag_map)[0] == tags_in_tag_file
+        ):
+            return True, filenames_to_tags
+        return (
+            self._create_window_differing_tags(
+                total_tag_map, tags_in_tag_file
+            ),
+            filenames_to_tags,
+        )
+
+    def _create_window_differing_tags(self, total_tag_map, tags_in_tag_file):
+        text_body = "\n".join(
+            [
+                "{} file(s) found with {} tags.".format(len(v), k)
+                for k, v in total_tag_map.items()
+            ]
+        )
+        text = f"""Differing numbers of tags were found:
+
+The loaded tag file has {tags_in_tag_file} tags.
+
+{text_body}
+
+If all selected tags are present in the loaded files, click OK.
+If not, or you are unsure, click Cancel."""
+
+        dialog = QtWidgets.QMessageBox()
+        dialog.setStandardButtons(
+            QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel
+        )
+        dialog.setText(text)
+        dialog.setIcon(QtWidgets.QMessageBox.Warning)
+        dialog.setDetailedText(
+            "\n".join(
+                [
+                    "{} tags:\n{}\n".format(t, "\n".join(total_tag_map[t]))
+                    for t in total_tag_map.keys()
+                ]
+            )
+        )
+        return True if dialog.exec_() == QtWidgets.QMessageBox.Ok else False
+
     def _create_window_error(self, title, text, *errors):
         msg = QtWidgets.QMessageBox(parent=self)
         msg.setWindowTitle(title)
         msg.setText(text)
         msg.setDetailedText(
             "\n".join(
-                [
-                    "Exception: {}; Args: {}".format(type(e).__name__, e.args)
-                    for e in errors
-                ]
+                ["{}: {}".format(type(e).__name__, e.args[0]) for e in errors]
             )
         )
         msg.show()

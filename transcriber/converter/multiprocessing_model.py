@@ -16,13 +16,15 @@ class MultiProcessingConverterModel(model.ConverterModel):
         self.pool = None
 
     @QtCore.pyqtSlot(list, set, int, list)
-    def convert(self, filenames, tags, num_cpu, tag_lookup):
+    def convert(self, filenames_to_tags, tags, num_cpu, tag_lookup):
         self.successful_conversions = []
         self.exceptions = []
         self.pool = Pool(processes=num_cpu)
         self.conversion_started.emit()
-        for filename in filenames:
-            worker = DBFWorker(filename, tags, tag_lookup)
+        for filename, total_tags in filenames_to_tags:
+            worker = DBFWorker(
+                filename, tags, tag_lookup, total_tags=total_tags
+            )
             self.pool.apply_async(
                 func=worker.work,
                 callback=self.register_successful_conversion,
@@ -31,7 +33,9 @@ class MultiProcessingConverterModel(model.ConverterModel):
         self.pool.close()
         self.pool.join()
         unsuccessful = [
-            f for f in filenames if f not in self.successful_conversions
+            f[0]
+            for f in filenames_to_tags
+            if f[0] not in self.successful_conversions
         ]
         for file, error in zip(unsuccessful, self.exceptions):
             self.conversion_error.emit((file, error))
@@ -39,8 +43,7 @@ class MultiProcessingConverterModel(model.ConverterModel):
 
     @QtCore.pyqtSlot()
     def terminate(self):
-        if self.pool is not None:
-            self.pool.terminate()
+        self.pool.terminate()
 
     def register_successful_conversion(self, filename):
         self.successful_conversions.append(filename)

@@ -12,9 +12,7 @@ class FileSelecterView(QtWidgets.QWidget):
 
         self._layout = QtWidgets.QVBoxLayout()
 
-        self.files = SearchableListWidget(
-            self, search_text="Search Loaded Files"
-        )
+        self.files = SearchableListWidget(self, list_name="Loaded Files")
         self.files.setSelectionMode(
             QtWidgets.QAbstractItemView.ExtendedSelection
         )

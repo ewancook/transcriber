@@ -1,5 +1,7 @@
 from PyQt5 import QtCore
 
+from transcriber.converter.utils import determine_total_tags
+
 
 class Converter(QtCore.QObject):
     def __init__(self, view, model, collator):
@@ -37,12 +39,17 @@ class Converter(QtCore.QObject):
             self.reset_progress()
         self.view.set_finished()
 
-    def convert(self, filenames, tags, num_cpu, tag_lookup):
-        self.view.set_progress_range(0, len(filenames))
-        self.model.start.emit(filenames, tags, num_cpu, tag_lookup)
+    def convert(self, filenames_to_tags, tags, num_cpu, tag_lookup):
+        self.view.set_progress_range(0, len(filenames_to_tags))
+        if not isinstance(tags, set):
+            tags = set(tags)
+        self.model.start.emit(filenames_to_tags, tags, num_cpu, tag_lookup)
 
     def collate(self, filenames):
         self.collator.start.emit(self.view.collated_file, filenames)
+
+    def determine_total_tags(self, filenames):
+        return determine_total_tags(filenames)
 
     @property
     def multithreaded(self):

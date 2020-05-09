@@ -95,13 +95,11 @@ class TestParser(unittest.TestCase):
         dbf_filename = kwargs["dbf_filename"]
         required_fields = ["DATE", "TIME", "TAGINDEX", "VALUE"]
         for required_tags in powerset(self.all_tags):
-            parser = Parser(
-                required_fields=required_fields,
-                required_tags=required_tags,
-                all_tags=self.all_tags,
-            )
+            parser = Parser(required_fields=required_fields)
             lookup = set([self.all_fields.index(f) for f in required_fields])
-            parsed = parser.parse_selection(dbf_filename)
+            parsed = parser.parse_selection(
+                dbf_filename, required_tags, len(self.all_tags)
+            )
 
             rows = [
                 row
