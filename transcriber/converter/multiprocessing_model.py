@@ -8,8 +8,8 @@ from transcriber.converter.dbfworker.worker import DBFWorker
 TERMINATE = 2
 
 
-def create_dbf_worker(self, *args, **kwargs):
-    return DBFWorker(*args, **kwargs)
+def create_dbf_worker(filename, tags, tag_lookup, total_tags):
+    return DBFWorker(filename, tags, tag_lookup, total_tags)
 
 
 class MultiProcessingConverterModel(model.ConverterModel):
