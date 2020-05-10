@@ -5,6 +5,8 @@ from unittest import mock
 
 from transcriber.converter.dbfworker import utils, worker
 
+DEFAULT_DECIMAL_PLACES = 8
+
 
 def _generate_row(date, time, input_value):
     return {
@@ -16,10 +18,14 @@ def _generate_row(date, time, input_value):
 
 class TestDBFWorker(unittest.TestCase):
     def setUp(self):
+        config = {
+            "tags": ["First", "Second", "Fifth"],
+            "decimal_places": DEFAULT_DECIMAL_PLACES,
+        }
         self.worker = worker.DBFWorker(
-            "filename",
-            ["First", "Second", "Fifth"],
-            ["First", "Second", "Third", "Fourth", "Fifth"],
+            filename="filename",
+            tag_lookup=["First", "Second", "Third", "Fourth", "Fifth"],
+            **config,
         )
         self.test_table = [
             _generate_row(b"19700101", b"00:00:00", i) for i in range(1, 4)
@@ -39,7 +45,10 @@ class TestDBFWorker(unittest.TestCase):
         utils.write_csv(
             csv_file,
             utils.generate_csv(
-                self.test_table, self.worker.tags, self.worker.tag_lookup
+                self.test_table,
+                self.worker.tags,
+                self.worker.tag_lookup,
+                DEFAULT_DECIMAL_PLACES,
             ),
         )
         csv_file.seek(0)
@@ -68,14 +77,19 @@ class TestDBFWorker(unittest.TestCase):
         )
 
     def test_total_tags_is_set(self):
-        _worker = worker.DBFWorker("filename", [], [], total_tags=10)
+        _worker = worker.DBFWorker(
+            filename="filename", total_tags=10, **{"tags": []}
+        )
         self.assertEqual(_worker.total_tags, 10)
 
     def test_generate_csv(self):
         self.assertEqual(
             "".join(
                 utils.generate_csv(
-                    self.test_table, self.worker.tags, self.worker.tag_lookup
+                    self.test_table,
+                    self.worker.tags,
+                    self.worker.tag_lookup,
+                    DEFAULT_DECIMAL_PLACES,
                 )
             ),
             self.test_table_usual_output,
@@ -87,7 +101,10 @@ class TestDBFWorker(unittest.TestCase):
         self.assertEqual(
             "".join(
                 utils.generate_csv(
-                    table, self.worker.tags, self.worker.tag_lookup
+                    table,
+                    self.worker.tags,
+                    self.worker.tag_lookup,
+                    DEFAULT_DECIMAL_PLACES,
                 )
             ),
             expected,

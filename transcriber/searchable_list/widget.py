@@ -13,6 +13,7 @@ class SearchableListWidget(QtWidgets.QWidget):
         self.search_bar.textChanged.connect(self._update_list)
 
         self.list_widget = QtWidgets.QListWidget()
+        self.list_widget.setSortingEnabled(True)
         self.itemDoubleClicked = self.list_widget.itemDoubleClicked
         self.currentItemChanged = self.list_widget.currentItemChanged
         self.doubleClicked = self.list_widget.doubleClicked
@@ -62,12 +63,15 @@ class SearchableListWidget(QtWidgets.QWidget):
     def row(self, *args, **kwargs):
         return self.list_widget.row(*args, **kwargs)
 
-    def setDragDropMode(self, mode=False):
+    def change_drag_drop_state(self, state=False):
         self.list_widget.setDragDropMode(
             QAbstractItemView.InternalMove
-            if mode
+            if state
             else QAbstractItemView.NoDragDrop
         )
+
+    def sort_items(self, sort_direction):
+        self.list_widget.sortItems(sort_direction)
 
     def _update_list(self, text):
         text = text.lower()

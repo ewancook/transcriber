@@ -41,12 +41,13 @@ class TestCollator(unittest.TestCase):
 
     @mock.patch("transcriber.collator.utils.collate_files")
     def test_collate(self, mock_collate):
-        save_file = "this/is/the/collated/file.csv"
+        save_file = mock.Mock()
         filenames = ["this/is/a/test.csv"]
         utils.collate(save_file, filenames)
         mock_collate.assert_called_with(
             save_file, [transcribed_filename(f) for f in filenames]
         )
+        save_file.close.assert_called_once()
 
     def test_collate_files(self):
         num_files = 3
@@ -59,7 +60,7 @@ class TestCollator(unittest.TestCase):
         collated_file = io.StringIO()
         utils.collate_files(collated_file, [f.name for f in files])
         collated_file.seek(0)
-        file_contents_body = "\n".join(file_contents.split("\n")[2:])
+        file_contents_body = "\n".join(file_contents.split("\n")[1:])
         self.assertEqual(
             collated_file.read(),
             "\n".join(

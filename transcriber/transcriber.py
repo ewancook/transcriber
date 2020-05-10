@@ -1,5 +1,3 @@
-from multiprocessing import cpu_count
-
 from PyQt5 import QtCore, QtWidgets
 
 from transcriber import utils
@@ -48,6 +46,12 @@ class Transcriber(QtWidgets.QMainWindow):
         self.collator.connect_collation_finished(
             self.handle_collation_finished
         )
+        self.collator.connect_sorting_state_changed(
+            self.file_selecter.sort_items
+        )
+        self.collator.connect_drag_drop_state_changed(
+            self.file_selecter.change_drag_drop_state
+        )
 
         self.converter.connect_cancel_clicked(
             self.collator.emit_terminate_collation
@@ -64,10 +68,13 @@ class Transcriber(QtWidgets.QMainWindow):
         self.splitter.addWidget(self.file_selecter.view)
         self.splitter.addWidget(self.tag_selecter.view)
 
-        self._widget_list = QtWidgets.QVBoxLayout()
+        options = QtWidgets.QVBoxLayout()
+        options.addWidget(self.collator.view)
+        options.addWidget(self.converter.view)
+
+        self._widget_list = QtWidgets.QHBoxLayout()
         self._widget_list.addWidget(self.splitter)
-        self._widget_list.addWidget(self.collator.view)
-        self._widget_list.addWidget(self.converter.view)
+        self._widget_list.addLayout(options)
         self.setCentralWidget(QtWidgets.QWidget(self))
         self.centralWidget().setLayout(self._widget_list)
         self.setWindowTitle(f"Transcriber {VERSION}")
@@ -89,7 +96,6 @@ class Transcriber(QtWidgets.QMainWindow):
             self.converter.convert(
                 filenames_to_tags,
                 self.tag_selecter.active_tags,
-                cpu_count() if self.converter.multithreaded else 1,
                 self.tag_selecter.tags,
             )
 

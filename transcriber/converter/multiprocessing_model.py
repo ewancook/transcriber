@@ -8,8 +8,8 @@ from transcriber.converter.dbfworker.worker import DBFWorker
 TERMINATE = 2
 
 
-def create_dbf_worker(filename, tags, tag_lookup, total_tags):
-    return DBFWorker(filename, tags, tag_lookup, total_tags)
+def create_dbf_worker(**kwargs):
+    return DBFWorker(**kwargs)
 
 
 class MultiProcessingConverterModel(model.ConverterModel):
@@ -18,14 +18,14 @@ class MultiProcessingConverterModel(model.ConverterModel):
         self.exceptions = []
         self.pool = None
 
-    @QtCore.pyqtSlot(list, set, int, list)
-    def convert(self, filenames_to_tags, tags, num_cpu, tag_lookup):
+    @QtCore.pyqtSlot(list, int, dict)
+    def convert(self, filenames_to_tags, num_cores, config):
         self.exceptions = []
-        self.pool = Pool(processes=num_cpu)
+        self.pool = Pool(processes=num_cores)
         self.conversion_started.emit()
         for filename, total_tags in filenames_to_tags:
             worker = create_dbf_worker(
-                filename, tags, tag_lookup, total_tags=total_tags
+                filename=filename, total_tags=total_tags, **config
             )
             self.pool.apply_async(
                 func=worker.work,

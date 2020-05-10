@@ -24,6 +24,12 @@ class FileSelecter:
     def enable_view(self):
         self.view.setEnabled(True)
 
+    def change_drag_drop_state(self, state):
+        self.view.change_drag_drop_state(state)
+
+    def sort_items(self, sort_direction):
+        self.view.sort_items(sort_direction)
+
     def connect_files_added(self, slot):
         self.view.connect_files_added(slot)
 

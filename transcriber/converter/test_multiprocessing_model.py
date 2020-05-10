@@ -27,11 +27,18 @@ class TestMultiProcessingModel(unittest.TestCase):
         ]
         tags = ["here", "tags"]
         tag_lookup = ["here", "are", "some", "tags"]
-        self.model.convert(filenames_to_tags, tags, 1, tag_lookup)
+        self.model.convert(
+            filenames_to_tags, 1, {"tags": tags, "tag_lookup": tag_lookup}
+        )
         self.assertEqual(mock_create.call_count, len(filenames_to_tags))
         mock_create.assert_has_calls(
             [
-                mock.call(f[0], tags, tag_lookup, total_tags=f[1])
+                mock.call(
+                    filename=f[0],
+                    tags=tags,
+                    total_tags=f[1],
+                    tag_lookup=tag_lookup,
+                )
                 for f in filenames_to_tags
             ]
         )

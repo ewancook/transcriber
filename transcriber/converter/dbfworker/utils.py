@@ -34,7 +34,7 @@ def write_csv(csv_file, csv_data):
     csv_file.write("".join(csv_data))
 
 
-def _mean(gen, decimal_places=8):
+def _mean(gen, decimal_places):
     n = 0
     mean = 0.0
     for i in gen:
@@ -43,7 +43,7 @@ def _mean(gen, decimal_places=8):
     return round(mean, decimal_places) if n else 0
 
 
-def average_rows(table, n_rows, decimal_places=8):
+def average_rows(table, n_rows, decimal_places):
     yield next(table)
     try:
         while True:
@@ -60,7 +60,7 @@ def average_rows(table, n_rows, decimal_places=8):
         return
 
 
-def generate_csv(table, tags, tag_lookup):
+def generate_csv(table, tags, tag_lookup, decimal_places):
     table = iter(table)
     lines = sorted([tag_lookup.index(t) for t in tags])
     double_struct = Struct("<d")
@@ -75,8 +75,14 @@ def generate_csv(table, tags, tag_lookup):
             first_column = next(rows)
             date = format_dbf_date(first_column[DATE].decode())
             time = first_column[TIME].decode()
-            value = round(unpack(first_column[VALUE])[0], 8)
-            values = (str(round(unpack(row[VALUE])[0], 8)) for row in rows)
-            yield f"\n{date},{time},{value},{','.join(values)}"
+            value = round(unpack(first_column[VALUE])[0], decimal_places)
+            values = [
+                str(round(unpack(row[VALUE])[0], decimal_places))
+                for row in rows
+            ]
+            if not len(values):
+                yield f"\n{date},{time},{value}"
+            else:
+                yield f"\n{date},{time},{value},{','.join(values)}"
     except StopIteration:
         return

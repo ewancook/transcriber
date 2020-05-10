@@ -13,13 +13,15 @@ class ConverterView(QtWidgets.QWidget):
         self._layout = QtWidgets.QVBoxLayout()
 
         cores = multiprocessing.cpu_count()
-        self.multi = QtWidgets.QCheckBox(
-            "Parallel Conversion ({} Cores)".format(cores), self
-        )
+        self.multi = QtWidgets.QCheckBox("Parallel Conversion (Cores)", self)
         self.multi.setChecked(True)
+        self.multi.stateChanged.connect(self.change_multi_spinbox_state)
         self.multi.setToolTip(
-            "If enabled, all CPU cores are used to transcribe multiple files simultaneously."
+            "If enabled, multiple CPU cores are used to transcribe multiple files simultaneously."
         )
+        self.multi_spin = QtWidgets.QSpinBox()
+        self.multi_spin.setRange(1, cores)
+        self.multi_spin.setValue(cores)
 
         self.run = QtWidgets.QPushButton("Run", self)
         self.run.clicked.connect(self.emit_run_or_cancel)
@@ -34,17 +36,59 @@ class ConverterView(QtWidgets.QWidget):
         self.progress.setValue(0)
         self.progress_value = 0
 
-        horizontal_layout = QtWidgets.QHBoxLayout()
-        horizontal_layout.addWidget(self.multi)
+        self.set_rounding = QtWidgets.QCheckBox("Set Decimal Places")
+        self.set_rounding.stateChanged.connect(
+            self.change_rounding_spinbox_state
+        )
+        self.rounding_spin = QtWidgets.QSpinBox()
+        self.rounding_spin.setEnabled(False)
 
-        self._layout.addLayout(horizontal_layout)
-        self._layout.addWidget(self.run)
-        self._layout.addWidget(self.progress)
+        self.default_rounding = 8
+        self.rounding_spin.setValue(self.default_rounding)
+        self.rounding_spin.setRange(0, 16)
 
-        self.setLayout(self._layout)
+        self.average_rows = QtWidgets.QCheckBox("Average every 'N' Rows")
+        self.average_rows.stateChanged.connect(
+            self.change_average_rows_spinbox_state
+        )
+        self.average_rows_spin = QtWidgets.QSpinBox()
+        self.average_rows_spin.setEnabled(False)
+        self.average_rows_spin.setMinimum(2)
 
-    def multithreaded(self):
-        return self.multi.isChecked()
+        self.options_label = QtWidgets.QLabel("Conversion Options:")
+
+        self.grid = QtWidgets.QGridLayout()
+        self.grid.addWidget(self.options_label, 0, 0, 1, 2)
+        self.grid.addWidget(self.average_rows, 1, 0)
+        self.grid.addWidget(self.average_rows_spin, 1, 1)
+        self.grid.addWidget(self.set_rounding, 2, 0)
+        self.grid.addWidget(self.rounding_spin, 2, 1)
+        self.grid.addWidget(self.multi, 3, 0)
+        self.grid.addWidget(self.multi_spin, 3, 1)
+        self.grid.addWidget(self.run, 4, 0, 1, 2)
+        self.grid.addWidget(self.progress, 5, 0, 1, 2)
+
+        self.setLayout(self.grid)
+
+    @property
+    def num_cores(self):
+        return int(self.multi_spin.value()) if self.multi.isChecked() else 1
+
+    @property
+    def num_decimal_places(self):
+        return (
+            int(self.rounding_spin.value())
+            if self.set_rounding.isChecked()
+            else self.default_rounding
+        )
+
+    @property
+    def rows_to_average(self):
+        return (
+            int(self.average_rows_spin.value())
+            if self.average_rows.isChecked()
+            else None
+        )
 
     def enable_run(self):
         self.run.setEnabled(True)
@@ -88,12 +132,31 @@ class ConverterView(QtWidgets.QWidget):
     def _change_state_of_widgets_except_run(self, state):
         self.progress.setEnabled(state)
         self.multi.setEnabled(state)
+        self.average_rows.setEnabled(state)
+        self.average_rows_spin.setEnabled(
+            state if self.average_rows.isChecked() else False
+        )
+        self.set_rounding.setEnabled(state)
+        self.rounding_spin.setEnabled(
+            state if self.set_rounding.isChecked() else False
+        )
+        self.multi_spin.setEnabled(state if self.multi.isChecked() else False)
+        self.options_label.setEnabled(state)
 
     def disable_view_except_run(self):
         self._change_state_of_widgets_except_run(False)
 
     def enable_view_except_run(self):
         self._change_state_of_widgets_except_run(True)
+
+    def change_rounding_spinbox_state(self, state):
+        self.rounding_spin.setEnabled(state)
+
+    def change_average_rows_spinbox_state(self, state):
+        self.average_rows_spin.setEnabled(state)
+
+    def change_multi_spinbox_state(self, state):
+        self.multi_spin.setEnabled(state)
 
     def connect_run_clicked(self, slot):
         self.run_clicked.connect(slot)

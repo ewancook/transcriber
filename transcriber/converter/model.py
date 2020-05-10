@@ -8,7 +8,7 @@ class ConverterModel(QtCore.QObject):
     conversion_update = QtCore.pyqtSignal()
     terminate_work = QtCore.pyqtSignal()
 
-    start = QtCore.pyqtSignal(list, set, int, list)
+    start = QtCore.pyqtSignal(list, int, dict)
 
     def __init__(self):
         super(ConverterModel, self).__init__()

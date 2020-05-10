@@ -22,11 +22,17 @@ class Converter:
             self.reset_progress()
         self.view.set_finished()  # must always set_finished() because there may be conversion errors
 
-    def convert(self, filenames_to_tags, tags, num_cpu, tag_lookup):
+    def convert(self, filenames_to_tags, tags, tag_lookup):
         self.view.set_progress_range(0, len(filenames_to_tags))
         if not isinstance(tags, set):
             tags = set(tags)
-        self.model.start.emit(filenames_to_tags, tags, num_cpu, tag_lookup)
+        config = {
+            "tags": tags,
+            "tag_lookup": tag_lookup,
+            "decimal_places": self.view.num_decimal_places,
+            "rows_to_average": self.view.rows_to_average,
+        }
+        self.model.start.emit(filenames_to_tags, self.view.num_cores, config)
 
     def determine_total_tags(self, filenames):
         return determine_total_tags(filenames)

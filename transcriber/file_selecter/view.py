@@ -63,6 +63,12 @@ class FileSelecterView(QtWidgets.QWidget):
     def enable_deletion(self):
         self.del_file.setEnabled(True)
 
+    def change_drag_drop_state(self, state):
+        self.files.change_drag_drop_state(state)
+
+    def sort_items(self, sort_direction):
+        self.files.sort_items(sort_direction)
+
     def connect_files_added(self, slot):
         self.files_added.connect(slot)
 

@@ -31,3 +31,9 @@ class Collator:
 
     def connect_collation_finished(self, slot):
         self.model.connect_collation_finished(slot)
+
+    def connect_sorting_state_changed(self, slot):
+        self.view.connect_sorting_state_changed(slot)
+
+    def connect_drag_drop_state_changed(self, slot):
+        self.view.connect_drag_drop_state_changed(slot)

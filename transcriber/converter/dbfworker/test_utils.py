@@ -60,7 +60,7 @@ class TestUtils(unittest.TestCase):
             "\n01/01/1970,00:00:16,5.0,2.01,3.03300000",
         ]
         self.assertEqual(
-            list(utils.average_rows(iter(test_rows), 2)),
+            list(utils.average_rows(iter(test_rows), 2, 8)),
             [
                 "Date,Time,Val1,Val2,Val3",
                 "\n01/01/1970,00:00:00,1.5,2.075,3.00000004",
@@ -70,7 +70,7 @@ class TestUtils(unittest.TestCase):
         modified_test_rows = test_rows.copy()
         modified_test_rows[-1] = test_rows[-1].rstrip("0")
         self.assertEqual(
-            list(utils.average_rows(iter(test_rows), 1)), modified_test_rows
+            list(utils.average_rows(iter(test_rows), 1, 8)), modified_test_rows
         )
         self.assertEqual(
             list(utils.average_rows(iter(test_rows), 3, 5)),
