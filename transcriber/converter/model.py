@@ -4,7 +4,7 @@ from PyQt5 import QtCore
 class ConverterModel(QtCore.QObject):
     conversion_started = QtCore.pyqtSignal()
     conversion_finished = QtCore.pyqtSignal(bool)
-    conversion_error = QtCore.pyqtSignal(tuple)
+    conversion_error = QtCore.pyqtSignal(Exception)
     conversion_update = QtCore.pyqtSignal()
     terminate_work = QtCore.pyqtSignal()
 

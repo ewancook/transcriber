@@ -16,8 +16,11 @@ class Worker:
         self.total_tags = total_tags if total_tags else len(tag_lookup)
 
     def work(self):
-        self.convert()
-        return self.filename
+        try:
+            self.convert()
+            return self.filename
+        except Exception as error:
+            raise Exception(self.filename, error)
 
 
 class DBFWorker(Worker):

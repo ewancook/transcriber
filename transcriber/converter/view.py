@@ -21,14 +21,6 @@ class ConverterView(QtWidgets.QWidget):
             "If enabled, all CPU cores are used to transcribe multiple files simultaneously."
         )
 
-        self.collated_file = None
-        self.collate = QtWidgets.QCheckBox("Collate Output (Overall CSV)")
-        self.collate.setChecked(False)
-        self.collate.setToolTip(
-            "If enabled, an additional CSV containing all data will be produced. Files are collated in order of appearance (see 'Loaded')."
-        )
-        self.collate.stateChanged.connect(self.select_collated_file)
-
         self.run = QtWidgets.QPushButton("Run", self)
         self.run.clicked.connect(self.emit_run_or_cancel)
         self.run.setEnabled(False)
@@ -44,7 +36,6 @@ class ConverterView(QtWidgets.QWidget):
 
         horizontal_layout = QtWidgets.QHBoxLayout()
         horizontal_layout.addWidget(self.multi)
-        horizontal_layout.addWidget(self.collate)
 
         self._layout.addLayout(horizontal_layout)
         self._layout.addWidget(self.run)
@@ -54,9 +45,6 @@ class ConverterView(QtWidgets.QWidget):
 
     def multithreaded(self):
         return self.multi.isChecked()
-
-    def collate_files(self):
-        return self.collate.isChecked()
 
     def enable_run(self):
         self.run.setEnabled(True)
@@ -100,22 +88,9 @@ class ConverterView(QtWidgets.QWidget):
     def _change_state_of_widgets_except_run(self, state):
         self.progress.setEnabled(state)
         self.multi.setEnabled(state)
-        self.collate.setEnabled(state)
 
     def disable_view_except_run(self):
         self._change_state_of_widgets_except_run(False)
-
-    def select_collated_file(self, state):
-        if not state:
-            return
-        collated_file, _ = QtWidgets.QFileDialog.getSaveFileName(
-            parent=self,
-            caption="Select Output File - Collated CSV",
-            filter="CSV (*.csv)",
-        )
-        if not collated_file:
-            self.collate.setCheckState(QtCore.Qt.Unchecked)
-        self.collated_file = collated_file
 
     def enable_view_except_run(self):
         self._change_state_of_widgets_except_run(True)
