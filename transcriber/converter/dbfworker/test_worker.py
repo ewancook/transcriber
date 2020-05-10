@@ -3,7 +3,7 @@ import struct
 import unittest
 from unittest import mock
 
-from transcriber.converter.dbfworker import worker
+from transcriber.converter.dbfworker import utils, worker
 
 
 def _generate_row(date, time, input_value):
@@ -30,20 +30,23 @@ class TestDBFWorker(unittest.TestCase):
 
     def test_write_csv_writes_to_file(self):
         csv_file = io.StringIO()
-        worker.write_csv(csv_file, self.worker.tags)
+        utils.write_csv(csv_file, self.worker.tags)
         csv_file.seek(0)
         self.assertEqual(csv_file.read(), "FirstSecondFifth")
 
     def test_write_csv_correctly_writes_after_csv_generation(self):
         csv_file = io.StringIO()
-        worker.write_csv(csv_file, self.worker.generate_csv(self.test_table))
+        utils.write_csv(
+            csv_file,
+            utils.generate_csv(
+                self.test_table, self.worker.tags, self.worker.tag_lookup
+            ),
+        )
         csv_file.seek(0)
         self.assertEqual(csv_file.read(), self.test_table_usual_output)
 
-    @mock.patch("transcriber.converter.dbfworker.worker.write_csv")
-    @mock.patch(
-        "transcriber.converter.dbfworker.worker.DBFWorker.generate_csv"
-    )
+    @mock.patch("transcriber.converter.dbfworker.utils.write_csv")
+    @mock.patch("transcriber.converter.dbfworker.utils.generate_csv")
     @mock.patch("transcriber.dbf.parser.Parser.parse_selection")
     @mock.patch("builtins.open", new_callable=mock.mock_open)
     def test_convert(
@@ -70,11 +73,22 @@ class TestDBFWorker(unittest.TestCase):
 
     def test_generate_csv(self):
         self.assertEqual(
-            "".join(self.worker.generate_csv(self.test_table)),
+            "".join(
+                utils.generate_csv(
+                    self.test_table, self.worker.tags, self.worker.tag_lookup
+                )
+            ),
             self.test_table_usual_output,
         )
 
     def test_generate_csv_with_empty_generator(self):
         table = []
         expected = "Date,Time,First,Second,Fifth"
-        self.assertEqual("".join(self.worker.generate_csv(table)), expected)
+        self.assertEqual(
+            "".join(
+                utils.generate_csv(
+                    table, self.worker.tags, self.worker.tag_lookup
+                )
+            ),
+            expected,
+        )
