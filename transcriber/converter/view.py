@@ -48,6 +48,9 @@ class ConverterView(QtWidgets.QWidget):
         self.rounding_spin.setRange(0, 16)
 
         self.average_rows = QtWidgets.QCheckBox("Average every 'N' Rows")
+        self.average_rows.setToolTip(
+            "If enabled, every 'N' rows are combined to give average values for each tag. The initial date and time are used."
+        )
         self.average_rows.stateChanged.connect(
             self.change_average_rows_spinbox_state
         )
