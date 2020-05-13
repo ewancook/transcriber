@@ -1,3 +1,5 @@
+import logging
+import os
 from multiprocessing import Pool
 
 from PyQt5 import QtCore
@@ -43,8 +45,13 @@ class MultiProcessingConverterModel(model.ConverterModel):
         self.pool.terminate()
 
     def update_conversion_total_success(self, filename):
+        filename = os.path.basename(filename)
+        logging.info(f"Successful transcription ({filename})")
         self.update_conversion_total()
 
     def handle_error(self, error):
+        filename, message = error.args
+        filename = os.path.basename(filename)
+        logging.error(f"Transcription failed: {message} ({filename})")
         self.exceptions.append(error)
         self.update_conversion_total()

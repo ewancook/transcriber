@@ -17,7 +17,7 @@ jobs:
       before_script:
         - python3 -m unittest discover
       script: &common_script
-        - sed -i "s/{TRAVIS_TAG}/${TRAVIS_TAG}/g" transcriber/transcriber.py
+        - sed -i "s/{TRAVIS_TAG}/${TRAVIS_TAG}/g" run.py
         - pyinstaller --name="transcriber" --windowed --onedir run.py
         - mv dist/transcriber ${FOLDER}
       before_deploy:

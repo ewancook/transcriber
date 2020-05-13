@@ -11,13 +11,16 @@ class TestMultiProcessingModel(unittest.TestCase):
         self.model = MultiProcessingConverterModel()
 
     @mock.patch(
+        "transcriber.converter.multiprocessing_model.MultiProcessingConverterModel.handle_error"
+    )
+    @mock.patch(
         "transcriber.converter.multiprocessing_model.create_dbf_worker"
     )
     @mock.patch("transcriber.converter.dbfworker.worker.DBFWorker.convert")
     @mock.patch("multiprocessing.Pool")
     @mock.patch("PyQt5.QtCore.pyqtSignal")
     def test_convert_called_with_right_total_tags(
-        self, mock_signal, mock_pool, mock_worker, mock_create
+        self, mock_signal, mock_pool, mock_worker, mock_create, mock_err
     ):
         filenames_to_tags = [
             ("this", 10),

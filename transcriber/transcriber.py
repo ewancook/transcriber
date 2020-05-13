@@ -1,3 +1,5 @@
+import logging
+
 from PyQt5 import QtCore, QtWidgets
 
 from transcriber import utils
@@ -15,12 +17,10 @@ from transcriber.tag_selecter.model import TagSelecterModel
 from transcriber.tag_selecter.presenter import TagSelecter
 from transcriber.tag_selecter.view import TagSelecterView
 
-VERSION = "{TRAVIS_TAG}"
 
-
-class Transcriber(QtWidgets.QMainWindow):
-    def __init__(self):
-        super(Transcriber, self).__init__()
+class Transcriber(QtWidgets.QWidget):
+    def __init__(self, parent=None):
+        super(Transcriber, self).__init__(parent)
 
         self.file_selecter = FileSelecter(FileSelecterView())
         self.file_selecter.connect_files_removed(self.check_run)
@@ -37,7 +37,6 @@ class Transcriber(QtWidgets.QMainWindow):
         self.converter = Converter(
             ConverterView(), MultiProcessingConverterModel()
         )
-
         self.conversion_errors = []
         self.collator.connect_collation_started(self.converter.set_running)
         self.collator.connect_collation_started(
@@ -75,9 +74,7 @@ class Transcriber(QtWidgets.QMainWindow):
         self._widget_list = QtWidgets.QHBoxLayout()
         self._widget_list.addWidget(self.splitter)
         self._widget_list.addLayout(options)
-        self.setCentralWidget(QtWidgets.QWidget(self))
-        self.centralWidget().setLayout(self._widget_list)
-        self.setWindowTitle(f"Transcriber {VERSION}")
+        self.setLayout(self._widget_list)
 
     def check_run(self):
         if self.tag_selecter.active_tags and self.file_selecter.filenames:
@@ -88,11 +85,13 @@ class Transcriber(QtWidgets.QMainWindow):
     def convert(self):
         self.converter.reset_progress()
         self.disable_all()
-        run, filenames_to_tags = self._run_with_differing_tags(
-            self.file_selecter.filenames, len(self.tag_selecter.tags)
+        filenames_to_tags = self.get_filenames_to_tags(
+            self.file_selecter.filenames,
+            self.tag_selecter.tags,
+            self.tag_selecter.active_tags,
         )
         self.enable_all()
-        if run:
+        if filenames_to_tags is not None:
             self.converter.convert(
                 filenames_to_tags,
                 self.tag_selecter.active_tags,
@@ -132,31 +131,37 @@ class Transcriber(QtWidgets.QMainWindow):
     def _append_conversion_error(self, error):
         self.conversion_errors.append(error)
 
-    def _run_with_differing_tags(self, filenames, tags_in_tag_file):
+    def get_filenames_to_tags(
+        self, filenames, tags_in_tag_file, selected_tags
+    ):
         filenames_to_tags = list(
             self.converter.determine_total_tags(filenames)
         )
-        return utils.create_total_tag_map(
-            filenames_to_tags, tags_in_tag_file, self
+        total_tag_map = utils.create_total_tag_map(filenames_to_tags)
+        if len(total_tag_map) == 1 and list(total_tag_map)[0] == len(
+            tags_in_tag_file
+        ):
+            return filenames_to_tags
+        out_of_range_tags = utils.get_out_of_range_tags(
+            total_tag_map, tags_in_tag_file, selected_tags
         )
+        if len(out_of_range_tags):
+            utils.create_invalid_tags_error(out_of_range_tags)
+            return None
+        return filenames_to_tags
 
     def _handle_tag_loading_error(self, error):
-        utils.create_window_error(
-            "Error Loading Tagfile",
-            "Tagnames could not be parsed from this file.",
-            error,
-            parent=self,
+        text = """Tags could not be parsed from this file.
+\nPlease refer to the log for the full error."""
+        utils.create_dialog(text, title="Error Loading Tag file", parent=self)
+        logging.error(
+            f"Failed to parse tag file: {type(error).__name__} ({error})"
         )
 
     def _handle_conversion_errors(self):
         if self.conversion_errors:
-            filenames = "\n".join(
-                [error.args[0] for error in self.conversion_errors]
-            )
-            utils.create_window_error(
-                "Conversion Error(s)",
-                f"The following files could not be converted:\n\n{filenames}",
-                *[error.args[1] for error in self.conversion_errors],
-                parent=self,
-            )
+            failed = len(self.conversion_errors)
+            text = f"""{failed} file(s) could not be converted.\n
+Refer to the log for a complete list of files and errors."""
+            utils.create_dialog(text, title="Conversion Error(s)")
             self.conversion_errors = []

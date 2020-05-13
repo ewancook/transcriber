@@ -36,15 +36,15 @@ class DBFWorker(Worker):
 
     def convert(self):
         table = self._parse_selection(self.filename)
+        csv_contents = utils.generate_csv(
+            table, self.tags, self.tag_lookup, self.decimal_places
+        )
         with open(utils.transcribed_filename(self.filename), "w") as csv_file:
-            table = utils.generate_csv(
-                table, self.tags, self.tag_lookup, self.decimal_places
-            )
             utils.write_csv(
                 csv_file,
-                table
+                csv_contents
                 if self.rows_to_average is None
                 else utils.average_rows(
-                    table, self.rows_to_average, self.decimal_places
+                    csv_contents, self.rows_to_average, self.decimal_places
                 ),
             )

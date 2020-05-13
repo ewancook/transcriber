@@ -1,3 +1,4 @@
+import logging
 from multiprocessing import Process
 
 from PyQt5 import QtCore
@@ -29,6 +30,12 @@ class CollatorModel(QtCore.QObject):
             self.process.start()
             self.state = True
             self.process.join()
+        if self.state:
+            logging.info(
+                f"Collation of {len(filenames)} file(s) was successful"
+            )
+        else:
+            logging.error("Collation was cancelled")
         self.collation_finished.emit(self.state)
 
     @QtCore.pyqtSlot()

@@ -13,7 +13,6 @@ class SearchableListWidget(QtWidgets.QWidget):
         self.search_bar.textChanged.connect(self._update_list)
 
         self.list_widget = QtWidgets.QListWidget()
-        self.list_widget.setSortingEnabled(True)
         self.itemDoubleClicked = self.list_widget.itemDoubleClicked
         self.currentItemChanged = self.list_widget.currentItemChanged
         self.doubleClicked = self.list_widget.doubleClicked
@@ -71,6 +70,7 @@ class SearchableListWidget(QtWidgets.QWidget):
         )
 
     def sort_items(self, sort_direction):
+        self.list_widget.setSortingEnabled(True)
         self.list_widget.sortItems(sort_direction)
 
     def _update_list(self, text):
