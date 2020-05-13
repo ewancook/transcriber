@@ -18,7 +18,9 @@ def get_out_of_range_tags(total_tag_map, tags_in_tag_file, selected_tags):
     tag_lookup = [tags_in_tag_file.index(i) for i in selected_tags]
     files = {}
     for index in tag_lookup:
-        affected_files = [v for k, v in total_tag_map.items() if k < index]
+        affected_files = [
+            v for k, v in total_tag_map.items() if k < index or not k
+        ]
         if len(affected_files):
             files[tags_in_tag_file[index]] = [
                 f for l in affected_files for f in l
