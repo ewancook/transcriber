@@ -3,11 +3,11 @@ from itertools import islice
 from transcriber.converter.dbfworker import utils
 
 
-def collate(save_file, filenames):
-    collate_files(
-        save_file, [utils.transcribed_filename(f) for f in filenames],
-    )
-    save_file.close()  # parent won't close this, so we have to
+def collate(collated_file, filenames):
+    with open(collated_file, "w") as save_file:
+        collate_files(
+            save_file, [utils.transcribed_filename(f) for f in filenames],
+        )
 
 
 def collate_files(collated_file, filenames):

@@ -21,15 +21,14 @@ class CollatorModel(QtCore.QObject):
         self.state = False
 
     @QtCore.pyqtSlot(str, list)
-    def collate(self, save_file, filenames):
+    def collate(self, collated_file, filenames):
         self.collation_started.emit()
-        with open(save_file, "w") as collated_file:
-            self.process = Process(
-                target=utils.collate, args=(collated_file, filenames,)
-            )
-            self.process.start()
-            self.state = True
-            self.process.join()
+        self.process = Process(
+            target=utils.collate, args=(collated_file, filenames,)
+        )
+        self.process.start()
+        self.state = True
+        self.process.join()
         if self.state:
             logging.info(
                 f"Collation of {len(filenames)} file(s) was successful"

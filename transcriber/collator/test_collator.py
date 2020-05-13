@@ -40,14 +40,14 @@ class TestCollator(unittest.TestCase):
         mock_join.assert_called_once()
 
     @mock.patch("transcriber.collator.utils.collate_files")
-    def test_collate(self, mock_collate):
-        save_file = mock.Mock()
+    @mock.patch("builtins.open", new_callable=mock.mock_open)
+    def test_collate(self, mock_file, mock_collate):
+        save_file = "this/is/the/save/file.csv"
         filenames = ["this/is/a/test.csv"]
         utils.collate(save_file, filenames)
         mock_collate.assert_called_with(
-            save_file, [transcribed_filename(f) for f in filenames]
+            mock_file(), [transcribed_filename(f) for f in filenames]
         )
-        save_file.close.assert_called_once()
 
     def test_collate_files(self):
         num_files = 3
