@@ -18,20 +18,23 @@ class FileSelecter:
     def enable_deletion(self):
         self.view.enable_deletion()
 
+    def disable_view(self):
+        self.view.setEnabled(False)
+
+    def enable_view(self):
+        self.view.setEnabled(True)
+
+    def change_drag_drop_state(self, state):
+        self.view.change_drag_drop_state(state)
+
+    def sort_items(self, sort_direction):
+        self.view.sort_items(sort_direction)
+
     def connect_files_added(self, slot):
         self.view.connect_files_added(slot)
-
-    def disconnect_files_added(self, slot):
-        self.view.disconnect_files_added(slot)
 
     def connect_files_removed(self, slot):
         self.view.connect_files_removed(slot)
 
-    def disconnect_files_removed(self, slot):
-        self.view.disconnect_files_removed(slot)
-
     def connect_current_changed(self, slot):
         self.view.connect_current_changed(slot)
-
-    def disconnect_current_changed(self, slot):
-        self.view.disconnect_current_changed(slot)

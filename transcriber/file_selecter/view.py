@@ -12,9 +12,7 @@ class FileSelecterView(QtWidgets.QWidget):
 
         self._layout = QtWidgets.QVBoxLayout()
 
-        self.files = SearchableListWidget(
-            self, search_text="Search Loaded Files"
-        )
+        self.files = SearchableListWidget(self, list_name="Loaded Files")
         self.files.setSelectionMode(
             QtWidgets.QAbstractItemView.ExtendedSelection
         )
@@ -65,20 +63,17 @@ class FileSelecterView(QtWidgets.QWidget):
     def enable_deletion(self):
         self.del_file.setEnabled(True)
 
+    def change_drag_drop_state(self, state):
+        self.files.change_drag_drop_state(state)
+
+    def sort_items(self, sort_direction):
+        self.files.sort_items(sort_direction)
+
     def connect_files_added(self, slot):
         self.files_added.connect(slot)
-
-    def disconnect_files_added(self, slot):
-        self.files_added.disconnect(slot)
 
     def connect_files_removed(self, slot):
         self.files_removed.connect(slot)
 
-    def disconnect_files_removed(self, slot):
-        self.files_removed.disconnect(slot)
-
     def connect_current_changed(self, slot):
         self.files.currentItemChanged.connect(slot)
-
-    def disconnect_current_changed(self, slot):
-        self.files.currentItemChanged.disconnect(slot)

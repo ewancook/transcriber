@@ -1,8 +1,11 @@
-from multiprocessing import cpu_count
+import logging
 
 from PyQt5 import QtCore, QtWidgets
 
-from transcriber.converter.collator import Collator
+from transcriber import utils
+from transcriber.collator.model import CollatorModel
+from transcriber.collator.presenter import Collator
+from transcriber.collator.view import CollatorView
 from transcriber.converter.multiprocessing_model import (
     MultiProcessingConverterModel,
 )
@@ -14,12 +17,10 @@ from transcriber.tag_selecter.model import TagSelecterModel
 from transcriber.tag_selecter.presenter import TagSelecter
 from transcriber.tag_selecter.view import TagSelecterView
 
-VERSION = "{TRAVIS_TAG}"
 
-
-class Transcriber(QtWidgets.QMainWindow):
-    def __init__(self):
-        super(Transcriber, self).__init__()
+class Transcriber(QtWidgets.QWidget):
+    def __init__(self, parent=None):
+        super(Transcriber, self).__init__(parent)
 
         self.file_selecter = FileSelecter(FileSelecterView())
         self.file_selecter.connect_files_removed(self.check_run)
@@ -31,35 +32,49 @@ class Transcriber(QtWidgets.QMainWindow):
         self.tag_selecter.connect_loading_error(self._handle_tag_loading_error)
         self.tag_selecter.connect_loading_finished(self.check_run)
 
+        self.collator = Collator(CollatorView(), CollatorModel())
+
         self.converter = Converter(
-            ConverterView(), MultiProcessingConverterModel(), Collator()
+            ConverterView(), MultiProcessingConverterModel()
+        )
+        self.conversion_errors = []
+        self.collator.connect_collation_started(self.converter.set_running)
+        self.collator.connect_collation_started(
+            self.converter.set_progress_collating
+        )
+        self.collator.connect_collation_finished(
+            self.handle_collation_finished
+        )
+        self.collator.connect_sorting_state_changed(
+            self.file_selecter.sort_items
+        )
+        self.collator.connect_drag_drop_state_changed(
+            self.file_selecter.change_drag_drop_state
         )
 
-        self.conversion_errors = []
-        self.converter.connect_run_clicked(self.converter.reset_progress)
+        self.converter.connect_cancel_clicked(
+            self.collator.emit_terminate_collation
+        )
         self.converter.connect_run_clicked(self.convert)
         self.converter.connect_conversion_started(self.disable_all)
-        self.converter.connect_conversion_finished(self.enable_all)
         self.converter.connect_conversion_finished(self.collate)
         self.converter.connect_conversion_finished(
             self._handle_conversion_errors
         )
-
         self.converter.connect_conversion_error(self._append_conversion_error)
-
-        self.converter.connect_collation_started(self.disable_all)
-        self.converter.connect_collation_finished(self.enable_all)
 
         self.splitter = QtWidgets.QSplitter(QtCore.Qt.Horizontal)
         self.splitter.addWidget(self.file_selecter.view)
         self.splitter.addWidget(self.tag_selecter.view)
 
-        self._widget_list = QtWidgets.QVBoxLayout()
+        options = QtWidgets.QVBoxLayout()
+        options.addWidget(self.collator.view)
+        options.addWidget(self.converter.view)
+
+        self._widget_list = QtWidgets.QHBoxLayout()
         self._widget_list.addWidget(self.splitter)
-        self._widget_list.addWidget(self.converter.view)
-        self.setCentralWidget(QtWidgets.QWidget(self))
-        self.centralWidget().setLayout(self._widget_list)
-        self.setWindowTitle(f"Transcriber {VERSION}")
+        self._widget_list.addLayout(options)
+        self.setLayout(self._widget_list)
 
     def check_run(self):
         if self.tag_selecter.active_tags and self.file_selecter.filenames:
@@ -68,61 +83,85 @@ class Transcriber(QtWidgets.QMainWindow):
             self.converter.disable_run()
 
     def convert(self):
-        self.converter.convert(
+        self.converter.reset_progress()
+        self.disable_all()
+        filenames_to_tags = self.get_filenames_to_tags(
             self.file_selecter.filenames,
-            set(self.tag_selecter.active_tags),
-            cpu_count() if self.converter.multithreaded else 1,
             self.tag_selecter.tags,
+            self.tag_selecter.active_tags,
         )
-
-    def collate(self):
-        if self.converter.collate_files and len(self.conversion_errors) < len(
-            self.file_selecter.filenames
-        ):
-            save_file, _ = QtWidgets.QFileDialog.getSaveFileName(
-                parent=self,
-                caption="Select Output File - Collated CSV",
-                filter="CSV (*.csv)",
+        self.enable_all()
+        if filenames_to_tags is not None:
+            self.converter.convert(
+                filenames_to_tags,
+                self.tag_selecter.active_tags,
+                self.tag_selecter.tags,
             )
-            if save_file:
-                self.converter.collate(save_file, self.file_selecter.filenames)
+
+    def collate(self, successful):
+        if (
+            not successful
+            or not self.collator.collate_files
+            or len(self.conversion_errors)
+        ):
+            self.enable_all()
+        else:
+            self.collator.collate(self.file_selecter.filenames)
+
+    def handle_collation_finished(self, successful):
+        if successful:
+            self.converter.set_progress_finished()
+        else:
+            self.converter.reset_progress()
+        self.converter.set_finished()
+        self.enable_all()
 
     def disable_all(self):
-        self.centralWidget().setEnabled(False)
+        self.file_selecter.disable_view()
+        self.tag_selecter.disable_view()
+        self.converter.disable_view_except_run()
+        self.collator.disable_view()
 
     def enable_all(self):
-        self.centralWidget().setEnabled(True)
+        self.file_selecter.enable_view()
+        self.tag_selecter.enable_view()
+        self.converter.enable_view_except_run()
+        self.collator.enable_view()
 
     def _append_conversion_error(self, error):
         self.conversion_errors.append(error)
 
-    def _create_window_error(self, title, text, *errors):
-        msg = QtWidgets.QMessageBox(parent=self)
-        msg.setWindowTitle(title)
-        msg.setText(text)
-        msg.setDetailedText(
-            "\n".join(
-                [
-                    "Exception: {}; Args: {}".format(type(e).__name__, e.args)
-                    for e in errors
-                ]
-            )
+    def get_filenames_to_tags(
+        self, filenames, tags_in_tag_file, selected_tags
+    ):
+        filenames_to_tags = list(
+            self.converter.determine_total_tags(filenames)
         )
-        msg.show()
+        total_tag_map = utils.create_total_tag_map(filenames_to_tags)
+        if len(total_tag_map) == 1 and list(total_tag_map)[0] == len(
+            tags_in_tag_file
+        ):
+            return filenames_to_tags
+        out_of_range_tags = utils.get_out_of_range_tags(
+            total_tag_map, tags_in_tag_file, selected_tags
+        )
+        if len(out_of_range_tags):
+            utils.create_invalid_tags_error(out_of_range_tags)
+            return None
+        return filenames_to_tags
 
     def _handle_tag_loading_error(self, error):
-        self._create_window_error(
-            "Error Loading Tagfile",
-            "Tagnames could not be parsed from this file.",
-            error,
+        text = """Tags could not be parsed from this file.
+\nPlease refer to the log for the full error."""
+        utils.create_dialog(text, title="Error Loading Tag file", parent=self)
+        logging.error(
+            f"Failed to parse tag file: {type(error).__name__} ({error})"
         )
 
     def _handle_conversion_errors(self):
         if self.conversion_errors:
-            files = "\n".join([i[0] for i in self.conversion_errors])
-            self._create_window_error(
-                "Conversion Error(s)",
-                f"The following files could not be converted:\n\n{files}",
-                *[i[1] for i in self.conversion_errors],
-            )
+            failed = len(self.conversion_errors)
+            text = f"""{failed} file(s) could not be converted.\n
+Refer to the log for a complete list of files and errors."""
+            utils.create_dialog(text, title="Conversion Error(s)")
             self.conversion_errors = []

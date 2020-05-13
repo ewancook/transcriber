@@ -26,11 +26,5 @@ class TagSelecterModel(QtCore.QObject):
     def connect_loading_error(self, slot):
         self.loading_error.connect(slot)
 
-    def disconnect_loading_error(self, slot):
-        self.loading_error.disconnect(slot)
-
     def connect_loading_finished(self, slot):
         self.loading_finished.connect(slot)
-
-    def disconnect_loading_finished(self, slot):
-        self.loading_finished.disconnect(slot)

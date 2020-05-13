@@ -1,6 +1,6 @@
 import unittest
 
-from transcriber.converter.workers import utils
+from transcriber.converter.dbfworker import utils
 
 
 class TestUtils(unittest.TestCase):
@@ -51,3 +51,31 @@ class TestUtils(unittest.TestCase):
         tests = {"19700101": "01/01/1970", "20121110": "10/11/2012"}
         for test_arg, expected in tests.items():
             self.assertEqual(utils.format_dbf_date(test_arg), expected)
+
+    def test_average_rows(self):
+        test_rows = [
+            "Date,Time,Val1,Val2,Val3",
+            "\n01/01/1970,00:00:00,1.0,2.0,3.0",
+            "\n01/01/1970,00:00:08,2.0,2.15,3.00000007",
+            "\n01/01/1970,00:00:16,5.0,2.01,3.03300000",
+        ]
+        self.assertEqual(
+            list(utils.average_rows(iter(test_rows), 2, 8)),
+            [
+                "Date,Time,Val1,Val2,Val3",
+                "\n01/01/1970,00:00:00,1.5,2.075,3.00000004",
+                "\n01/01/1970,00:00:16,5.0,2.01,3.033",
+            ],
+        )
+        modified_test_rows = test_rows.copy()
+        modified_test_rows[-1] = test_rows[-1].rstrip("0")
+        self.assertEqual(
+            list(utils.average_rows(iter(test_rows), 1, 8)), modified_test_rows
+        )
+        self.assertEqual(
+            list(utils.average_rows(iter(test_rows), 3, 5)),
+            [
+                "Date,Time,Val1,Val2,Val3",
+                "\n01/01/1970,00:00:00,2.66667,2.05333,3.011",
+            ],
+        )

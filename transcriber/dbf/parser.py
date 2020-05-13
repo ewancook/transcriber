@@ -2,41 +2,18 @@ import mmap
 
 from dbfread import DBF
 
-
-def create_row_skip_sequence(required, total, row_length):
-    sequence = []
-    for item in total:
-        if item in required:
-            sequence.extend([(True, row_length - 1), [False, 1]])
-        elif len(sequence) and not sequence[-1][0]:
-            sequence[-1][1] += row_length
-        else:
-            sequence.append([False, row_length])
-    if not sequence[-1][0]:
-        sequence[-1][1] -= 1
-        if not sequence[-1][1]:
-            sequence.pop()
-    return sequence
-
-
-def create_field_skip_sequence(required, total):
-    sequence = []
-    for item in total:
-        if item.name in required:
-            sequence.append((item.name, item.length))
-        elif len(sequence) and not sequence[-1][0]:
-            sequence[-1][1] += item.length
-        else:
-            sequence.append([False, item.length])
-    return sequence
+from transcriber.dbf.utils import (
+    create_field_skip_sequence,
+    create_row_skip_sequence,
+)
 
 
 class SubclassedDBF(DBF):
-    def __init__(self, filename, tags, **kwargs):
+    def __init__(self, filename, required_fields, **kwargs):
         super(SubclassedDBF, self).__init__(filename)
         for k, v in kwargs.items():
             setattr(self, k, v)
-        self.required_fields = tags
+        self.required_fields = required_fields
 
     def _iter_records_no_row_skipping(self, record_type=b" "):
         with open(self.filename, "rb") as _infile:
@@ -84,8 +61,8 @@ class SubclassedDBF(DBF):
                 self.required_fields, self.fields
             )
             row_skip_sequence = create_row_skip_sequence(
-                self.required_tags,
-                range(len(self.all_tags)),
+                self.required_tag_indices,
+                range(self.total_tags),
                 self.header.recordlen,
             )
 
@@ -117,21 +94,15 @@ class SubclassedDBF(DBF):
 
 
 class Parser:
-    def __init__(
-        self, required_fields, encoding="cp437", required_tags=[], all_tags=[],
-    ):
-        self.required_fields = set(required_fields)
+    def __init__(self, required_fields, encoding="cp437"):
+        if not isinstance(required_fields, set):
+            required_fields = set(required_fields)
+        self.required_fields = required_fields
         self.encoding = encoding
-        self.required_tags = set(required_tags)
-        self.all_tags = all_tags
 
     @property
     def tags(self):
         return self.required_fields
-
-    @tags.setter
-    def set_tags(self, required_fields):
-        self.required_fields = set(required_fields)
 
     def parse_all(self, filename):
         return SubclassedDBF(
@@ -139,16 +110,16 @@ class Parser:
             self.required_fields,
             encoding=self.encoding,
             recfactory=None,
-            raw=True,
         )._iter_records_no_row_skipping()
 
-    def parse_selection(self, filename):
+    def parse_selection(self, filename, required_tag_indices, total_tags):
+        if not isinstance(required_tag_indices, set):
+            required_tag_indices = set(required_tag_indices)
         return SubclassedDBF(
             filename,
             self.required_fields,
-            required_tags=self.required_tags,
-            all_tags=self.all_tags,
+            required_tag_indices=required_tag_indices,
+            total_tags=total_tags,
             encoding=self.encoding,
             recfactory=None,
-            raw=True,
         )

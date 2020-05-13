@@ -2,7 +2,7 @@
 
 Rapidly convert FactoryTalk SE DAT files to useful CSV files.
 
-<p align="center"><img src="images/transcriber.png" width="70%" height="70%"></p>
+<p align="center"><img src="images/transcriber.png" width="90%" height="90%"></p>
 
 
 ## Features
@@ -17,7 +17,7 @@ Rapidly convert FactoryTalk SE DAT files to useful CSV files.
   The above was observed using a quad-core i5 laptop (ubuntu), with 1.6 GB/s read.*
 - Parallel conversion makes the most of your CPU.
 - Built-in collation means data analysis is a piece of :cake:!
-- Minimum file size: trailing `0`s stripped from decimals (~10% file size reduction).
+- Ability to average rows so file size can be reduced.
 - Sensible file format (CSV):
 
   |Date      |Time    |Example Tag|(Other Selected Tags)|
@@ -43,20 +43,6 @@ The latest Windows and Linux builds can be found in [releases](https://github.co
 Build scripts are being updated. Read `.travis.yml` in the meantime.
 
 *Note: Python 3.6+ is required.*
-
-Clone the repository and run the relevant build script:
-
-    git clone https://github.com/ewancook/transcriber
-    
-    # on linux:
-    cd transcriber
-    ./build.sh
-
-    # on windows:
-    cd transcriber
-    build.bat
-
-The completed build can be found in `dist/transcriber`.
 
 ## Usage
 
@@ -95,16 +81,28 @@ To add tags, select them and click `Add`. To remove tags, select them and click 
 ---
 ### Parallel Conversion
 
-Enabling `Parallel Conversion (X Cores)` allows Transcriber to use all CPU cores to transcribe `X` files simultaneously.
+Enabling `Parallel Conversion (Cores)` allows Transcriber to use the selected number of CPU cores to transcribe files simultaneously.
 
 *Note: files will not necessarily be transcribed in the order specified. This has no impact on collation.*
 
 ---
 ### Collation
 
-Enable `Collation` if an overall CSV file containing back-to-back data from all files is required.
+Enable `Collation` if an overall CSV file containing back-to-back data from all files is required. Sort files by name (`Sort by Name`) or enable `Drag to Rearrange Files` for custom ordering.
 
 *Note: this produces an additional file.*
+
+---
+### Average Rows
+
+Enable `Average every 'N' Rows` to reduce data precision and file size. This setting combines every 'N' rows to give averaged values for each tag. The initial date and time are used.
+
+*Note: Transcriber does not explicitly calculate time-averages. Time increments are constant, so results are inherently time-averaged.*
+
+---
+### Decimal Places
+
+Enable `Set Decimal Places` to select the number of decimal places in the converted files.
 
 ---
 ### Run
