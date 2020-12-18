@@ -1,4 +1,4 @@
-from itertools import islice, zip_longest
+from itertools import islice
 from struct import Struct
 
 VALUE = "Value"
@@ -36,11 +36,12 @@ def write_csv(csv_file, csv_data):
 
 def _mean(gen, decimal_places):
     n = 0
+    p = 10 ** decimal_places
     mean = 0.0
     for i in gen:
         n += 1
         mean += (i - mean) / n
-    return round(mean, decimal_places) if n else 0
+    return int(mean * p + 0.5) / p if n else 0
 
 
 def average_rows(table, n_rows, decimal_places):
@@ -66,6 +67,7 @@ def generate_csv(table, tags, tag_lookup, decimal_places):
     double_struct = Struct("<d")
     unpack = double_struct.unpack
     num_tags = len(lines)
+    precision = 10 ** decimal_places
 
     yield ",".join([DATE, TIME, *[tag_lookup[l] for l in lines]])
 
@@ -75,9 +77,12 @@ def generate_csv(table, tags, tag_lookup, decimal_places):
             first_column = next(rows)
             date = format_dbf_date(first_column[DATE].decode())
             time = first_column[TIME].decode()
-            value = round(unpack(first_column[VALUE])[0], decimal_places)
+            value = (
+                int(unpack(first_column[VALUE])[0] * precision + 0.5)
+                / precision
+            )
             values = [
-                str(round(unpack(row[VALUE])[0], decimal_places))
+                str(int(unpack(row[VALUE])[0] * precision + 0.5) / precision)
                 for row in rows
             ]
             if not len(values):
