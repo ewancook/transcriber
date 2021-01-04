@@ -6,8 +6,9 @@ class FileSelecter:
     def filenames(self):
         return self.view.filenames()
 
-    def load_dat(self):
-        self.view.load_dat()
+    @property
+    def files_loaded(self):
+        return self.view.files_loaded()
 
     def add_files(self, files):
         self.view.add_files(files)

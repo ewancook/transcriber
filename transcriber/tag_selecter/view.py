@@ -1,5 +1,4 @@
 from PyQt5 import QtCore, QtWidgets
-
 from transcriber.searchable_list.widget import SearchableListWidget
 
 
@@ -12,10 +11,9 @@ class TagSelecterView(QtWidgets.QWidget):
 
         self._layout = QtWidgets.QVBoxLayout()
 
-        self.load = QtWidgets.QPushButton("Load Tag File", self)
-        self.load.setToolTip(
-            "Select a tag file to parse. File names typically end in '(Tagname).DAT'."
-        )
+        self.load = QtWidgets.QPushButton("", self)
+        self.load.setFlat(True)
+        self.load.setEnabled(False)
 
         self.tags = SearchableListWidget(self, list_name="All Tags")
         self.tags.setSelectionMode(
@@ -63,12 +61,6 @@ class TagSelecterView(QtWidgets.QWidget):
         self._layout.addLayout(horizontal)
         self.setLayout(self._layout)
 
-    def load_tag_file(self):
-        filename, _ = QtWidgets.QFileDialog.getOpenFileName(
-            parent=self, caption="Select Tagfile - DAT", filter="DAT (*.DAT)"
-        )
-        return filename
-
     def add_item(self, item):
         tag = item.text()
         if tag not in self.active_tags():
@@ -113,8 +105,17 @@ class TagSelecterView(QtWidgets.QWidget):
     def clear_new(self):
         self.used.clear()
 
-    def connect_load_clicked(self, slot):
-        self.load.clicked.connect(slot)
+    def clear_invalid_selection(self, new_tags):
+        invalid = [
+            self.used.item(i)
+            for i in range(self.used.count())
+            if self.used.item(i).text() not in new_tags
+        ]
+        for i in invalid:
+            self.used.takeItem(self.used.row(i))
+        if not self.used.count():
+            self.disable_deletion()
+        self.tag_deleted.emit()
 
     def connect_tag_added(self, slot):
         self.tag_added.connect(slot)

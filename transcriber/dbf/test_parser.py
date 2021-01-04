@@ -6,12 +6,14 @@ import unittest
 from itertools import chain, combinations
 
 import dbf
-
+from transcriber.dbf import parser
 from transcriber.dbf.parser import Parser
+
+parser.MARKER = "MARKER"
 
 
 def generate_parsed_pairs(rows, parsed, fields, lookup=None):
-    for expected, actual in zip(rows, parsed):
+    for actual, expected in zip(parsed, rows):
         for i, field_name in enumerate(fields):
             if lookup is not None and i not in lookup:
                 continue
@@ -32,24 +34,24 @@ def powerset(iterable):
 
 
 dbf_rows = [
-    ("19700101", "00:00:00", 100, 0, generate_random_string(), 0),
-    ("19700101", "00:00:00", 100, 1, generate_random_string(), 0),
-    ("19700101", "00:00:00", 100, 2, generate_random_string(), 0),
-    ("19700101", "00:00:00", 100, 3, generate_random_string(), 0),
-    ("19700101", "00:00:00", 100, 4, generate_random_string(), 0),
-    ("19700101", "00:00:08", 200, 0, generate_random_string(), 0),
-    ("19700101", "00:00:08", 200, 1, generate_random_string(), 0),
-    ("19700101", "00:00:08", 200, 2, generate_random_string(), 0),
-    ("19700101", "00:00:08", 200, 3, generate_random_string(), 0),
-    ("19700101", "00:00:08", 200, 4, generate_random_string(), 0),
-    ("19700101", "00:00:16", 300, 0, generate_random_string(), 0),
-    ("19700101", "00:00:16", 300, 1, generate_random_string(), 0),
-    ("19700101", "00:00:16", 300, 2, generate_random_string(), 0),
-    ("19700101", "00:00:16", 300, 3, generate_random_string(), 0),
-    ("19700101", "00:00:16", 300, 4, generate_random_string(), 0),
+    ("19700101", "00:00:00", 100, 0, generate_random_string(), 0, "B"),
+    ("19700101", "00:00:00", 100, 1, generate_random_string(), 0, "B"),
+    ("19700101", "00:00:00", 100, 2, generate_random_string(), 0, "B"),
+    ("19700101", "00:00:00", 100, 3, generate_random_string(), 0, "B"),
+    ("19700101", "00:00:00", 100, 4, generate_random_string(), 0, "B"),
+    ("19700101", "00:00:08", 200, 0, generate_random_string(), 0, " "),
+    ("19700101", "00:00:08", 200, 1, generate_random_string(), 0, " "),
+    ("19700101", "00:00:08", 200, 2, generate_random_string(), 0, " "),
+    ("19700101", "00:00:08", 200, 3, generate_random_string(), 0, " "),
+    ("19700101", "00:00:08", 200, 4, generate_random_string(), 0, " "),
+    ("19700101", "00:00:16", 300, 0, generate_random_string(), 0, "E"),
+    ("19700101", "00:00:16", 300, 1, generate_random_string(), 0, "E"),
+    ("19700101", "00:00:16", 300, 2, generate_random_string(), 0, "E"),
+    ("19700101", "00:00:16", 300, 3, generate_random_string(), 0, "E"),
+    ("19700101", "00:00:16", 300, 4, generate_random_string(), 0, "E"),
 ]
 
-dbf_table_format = "Date C(8); Time C(8); Mlltm N(3,0); TagIndex N(1,0); Value C(8); Internal N(1,0)"
+dbf_table_format = "Date C(8); Time C(8); Mlltm N(3,0); TagIndex N(1,0); Value C(8); Internal N(1,0); Marker C(1)"
 
 
 def create_dbf_file(func):
@@ -77,8 +79,9 @@ class TestParser(unittest.TestCase):
             "TAGINDEX",
             "VALUE",
             "INTERNAL",
+            "MARKER",
         ]
-        self.all_tags = [0, 1, 2, 3, 4, 5]
+        self.all_tags = [0, 1, 2, 3, 4]
 
     @create_dbf_file
     def test_parse_all(self, **kwargs):
@@ -91,16 +94,20 @@ class TestParser(unittest.TestCase):
             self.assertEqual(expected, actual)
 
     @create_dbf_file
-    def test_parse_selection_on_every_tag_combination(self, **kwargs):
+    def test_parse_float_file_on_every_tag_combination(self, **kwargs):
         dbf_filename = kwargs["dbf_filename"]
-        required_fields = ["DATE", "TIME", "TAGINDEX", "VALUE"]
+        required_fields = [
+            "DATE",
+            "TIME",
+            "TAGINDEX",
+            "VALUE",
+            "MARKER",
+            "MLLTM",
+        ]
         for required_tags in powerset(self.all_tags):
             parser = Parser(required_fields=required_fields)
-            lookup = set([self.all_fields.index(f) for f in required_fields])
-            parsed = parser.parse_selection(
-                dbf_filename, required_tags, len(self.all_tags)
-            )
-
+            lookup = set([self.all_tags.index(f) for f in required_tags])
+            parsed = parser.parse_float_file(dbf_filename, required_tags)
             rows = [
                 row
                 for i, row in enumerate(dbf_rows)

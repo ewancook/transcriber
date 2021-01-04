@@ -2,27 +2,38 @@ class TagSelecter:
     def __init__(self, view, model):
         self.view = view
         self.model = model
-
-        self.view.connect_load_clicked(self.load_file)
+        self.tags = set()
 
     @property
-    def tags(self):
+    def tag_lookups(self):
         return self.model.tags
 
     @property
     def active_tags(self):
         return self.view.active_tags()
 
-    def load_file(self):
-        filename = self.view.load_tag_file()
-        if filename:
+    def load_files(self, filenames):
+        self.model.load(filenames)
+        self.update_tags()
+
+    def remove_file_tags(self, filenames):
+        self.model.remove_file_tags(filenames)
+        self.update_tags()
+
+    def update_tags(self):
+        if len(self.tags):
             self.clear_all()
-            self.clear_new()
-            self.model.load(filename)
-            if self.tags:
-                self.set_all(self.tags)
-            self.disable_deletion()
-            self.disable_addition()
+        if not len(self.tag_lookups):
+            self.tags.clear()
+        else:
+            self.tags = set.intersection(
+                *[
+                    set([t for t in self.tag_lookups[k]])
+                    for k, v in self.tag_lookups.items()
+                ]
+            )
+            self.set_all(self.tags)
+        self.clear_invalid_selection(self.tags)
 
     def add_tag(self):
         self.view.add_tag()
@@ -50,6 +61,9 @@ class TagSelecter:
 
     def clear_new(self):
         self.view.clear_new()
+
+    def clear_invalid_selection(self, new_tags):
+        self.view.clear_invalid_selection(new_tags)
 
     def disable_view(self):
         self.view.setEnabled(False)

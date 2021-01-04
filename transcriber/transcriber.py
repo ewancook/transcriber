@@ -1,7 +1,6 @@
 import logging
 
 from PyQt5 import QtCore, QtWidgets
-
 from transcriber import utils
 from transcriber.collator.model import CollatorModel
 from transcriber.collator.presenter import Collator
@@ -24,6 +23,8 @@ class Transcriber(QtWidgets.QWidget):
 
         self.file_selecter = FileSelecter(FileSelecterView())
         self.file_selecter.connect_files_removed(self.check_run)
+        self.file_selecter.connect_files_removed(self.remove_file_tags)
+        self.file_selecter.connect_files_added(self.load_tag_files)
         self.file_selecter.connect_files_added(self.check_run)
 
         self.tag_selecter = TagSelecter(TagSelecterView(), TagSelecterModel())
@@ -74,13 +75,20 @@ class Transcriber(QtWidgets.QWidget):
         self._widget_list = QtWidgets.QHBoxLayout()
         self._widget_list.addWidget(self.splitter)
         self._widget_list.addLayout(options)
+
         self.setLayout(self._widget_list)
 
     def check_run(self):
-        if self.tag_selecter.active_tags and self.file_selecter.filenames:
+        if self.tag_selecter.active_tags and self.file_selecter.files_loaded:
             self.converter.enable_run()
         else:
             self.converter.disable_run()
+
+    def remove_file_tags(self, filenames):
+        self.tag_selecter.remove_file_tags(f[1] for f in filenames)
+
+    def load_tag_files(self, filenames):
+        self.tag_selecter.load_files(set(f[1] for f in filenames))
 
     def convert(self):
         self.converter.reset_progress()
@@ -106,7 +114,7 @@ class Transcriber(QtWidgets.QWidget):
         ):
             self.enable_all()
         else:
-            self.collator.collate(self.file_selecter.filenames)
+            self.collator.collate([f[0] for f in self.file_selecter.filenames])
 
     def handle_collation_finished(self, successful):
         if successful:
@@ -131,19 +139,15 @@ class Transcriber(QtWidgets.QWidget):
     def _append_conversion_error(self, error):
         self.conversion_errors.append(error)
 
-    def get_filenames_to_tags(
-        self, filenames, tags_in_tag_file, selected_tags
-    ):
+    def get_filenames_to_tags(self, filenames, tags, active_tags):
         filenames_to_tags = list(
             self.converter.determine_total_tags(filenames)
         )
         total_tag_map = utils.create_total_tag_map(filenames_to_tags)
-        if len(total_tag_map) == 1 and list(total_tag_map)[0] == len(
-            tags_in_tag_file
-        ):
+        if len(total_tag_map) == 1 and list(total_tag_map)[0] == len(tags):
             return filenames_to_tags
         out_of_range_tags = utils.get_out_of_range_tags(
-            total_tag_map, tags_in_tag_file, selected_tags
+            total_tag_map, tags, active_tags
         )
         if len(out_of_range_tags):
             utils.create_invalid_tags_error(out_of_range_tags)

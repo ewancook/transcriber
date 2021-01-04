@@ -1,64 +1,90 @@
-from PyQt5 import QtCore, QtWidgets
+import os
 
+from PyQt5 import QtCore, QtWidgets
 from transcriber.searchable_list.widget import SearchableListWidget
+
+FLOAT_END = " (Float).DAT"
+TAG_END = " (Tagname).DAT"
 
 
 class FileSelecterView(QtWidgets.QWidget):
-    files_added = QtCore.pyqtSignal()
-    files_removed = QtCore.pyqtSignal()
+    files_added = QtCore.pyqtSignal(list)
+    files_removed = QtCore.pyqtSignal(list)
 
     def __init__(self):
         super(FileSelecterView, self).__init__()
 
         self._layout = QtWidgets.QVBoxLayout()
+        self.names_to_paths = {}
 
         self.files = SearchableListWidget(self, list_name="Loaded Files")
         self.files.setSelectionMode(
             QtWidgets.QAbstractItemView.ExtendedSelection
         )
-        self.add_file = QtWidgets.QPushButton("Load Float File(s)", self)
+        self.load_folder = QtWidgets.QPushButton("Load Folder", self)
         self.del_file = QtWidgets.QPushButton("Remove", self)
         self.del_file.setEnabled(False)
 
-        self.add_file.setToolTip(
-            "Select float files to transcribe. File names typically end in '(Float).DAT'."
+        self.load_folder.setToolTip(
+            "Select a folder containing files to transcribe. It should include file names ending in '(Float).DAT' and '(Tagname).DAT'."
         )
         self.del_file.setToolTip(
             "Remove selected files. These will no longer be transcribed."
         )
 
-        self.add_file.clicked.connect(self.load_dat)
+        self.load_folder.clicked.connect(self.select_folder)
         self.del_file.clicked.connect(self.del_current)
         self.connect_current_changed(self.enable_deletion)
         self.files.doubleClicked.connect(self.del_current)
-
-        self._layout.addWidget(self.add_file)
+        self._layout.addWidget(self.load_folder)
         self._layout.addWidget(self.files)
         self._layout.addWidget(self.del_file)
         self.setLayout(self._layout)
 
     def filenames(self):
-        return [self.files.item(i).text() for i in range(self.files.count())]
+        return [
+            self.names_to_paths[self.files.item(i).text()]
+            for i in range(self.files.count())
+        ]
 
-    def load_dat(self):
-        filenames, _ = QtWidgets.QFileDialog.getOpenFileNames(
-            parent=self,
-            caption="Select Float File(s) - DAT",
-            filter="DAT (*.DAT)",
+    def files_loaded(self):
+        return self.files.count()
+
+    def select_folder(self):
+        folder = QtWidgets.QFileDialog.getExistingDirectory(
+            parent=self, caption="Load Folder",
         )
-        if filenames:
-            self.add_files(filenames)
-            self.files_added.emit()
+        if folder:
+            self.folder = os.path.basename(folder)
+            self.add_files(folder)
 
-    def add_files(self, files):
-        self.files.addItems([f for f in files if f not in self.filenames()])
+    def add_files(self, folder):
+        labels = []
+        filenames = os.listdir(folder)
+        for filename in filenames:
+            if filename.endswith(FLOAT_END):
+                name = "".join(filename.rsplit(FLOAT_END, 1))
+                tag_file = f"{name}{TAG_END}"
+                label = f"{name} ({self.folder})"
+                if tag_file in filenames and label not in self.names_to_paths:
+                    labels.append(label)
+                    self.names_to_paths[label] = (
+                        os.path.join(folder, filename),
+                        os.path.join(folder, tag_file),
+                    )
+        if labels:
+            self.files.addItems(labels)
+            self.files_added.emit([self.names_to_paths[l] for l in labels])
 
     def del_current(self):
+        names = []
         for item in self.files.selectedItems():
             self.files.takeItem(self.files.row(item))
+            names.append(self.names_to_paths[item.text()])
+            del self.names_to_paths[item.text()]
         if not self.files.count():
             self.del_file.setEnabled(False)
-        self.files_removed.emit()
+        self.files_removed.emit(names)
 
     def enable_deletion(self):
         self.del_file.setEnabled(True)
