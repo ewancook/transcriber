@@ -5,7 +5,7 @@ from multiprocessing import freeze_support
 
 from PyQt5 import QtWidgets
 
-from transcriber.logger import Logger
+from logger.logger import Logger
 from transcriber.transcriber import Transcriber
 
 LOG_FORMAT = "(%(asctime)s) %(message)s"

@@ -1,7 +1,7 @@
 import unittest
 from collections import namedtuple
 
-from transcriber.dbf import utils
+from fastdbf import parsing_sequences as ps
 
 
 class TestSkipSequences(unittest.TestCase):
@@ -17,11 +17,15 @@ class TestSkipSequences(unittest.TestCase):
             field("Marker", 1),
             field("Internal", 4),
         ]
+        self.tag_fields = [
+            field("Tagname", 255),
+            field("TTagIndex", 5),
+            field("TagType", 1),
+            field("TagDataTyp", 2),
+        ]
 
     def test_float_field_parsing_sequence_first_row(self):
-        sequence = utils.float_field_parsing_sequence_first_row(
-            self.all_fields
-        )
+        sequence = ps.float_field_parsing_sequence_first_row(self.all_fields)
         expected = [
             ("Date", 0, 8),
             ("Time", 8, 16),
@@ -34,9 +38,7 @@ class TestSkipSequences(unittest.TestCase):
         self.assertEqual(expected, sequence)
 
     def test_float_field_parsing_sequence_later_rows(self):
-        sequence = utils.float_field_parsing_sequence_later_rows(
-            self.all_fields
-        )
+        sequence = ps.float_field_parsing_sequence_later_rows(self.all_fields)
         expected = [
             [False, 0, 24],
             ("Value", 24, 32),
@@ -44,12 +46,35 @@ class TestSkipSequences(unittest.TestCase):
         ]
         self.assertEqual(expected, sequence)
 
+    def test_float_field_parsing_sequence_counting(self):
+        sequence = ps.float_field_parsing_sequence_counting(self.all_fields)
+        expected = [
+            ("Date", 0, 8),
+            ("Time", 8, 16),
+            [False, 16, 19],
+            ("TagIndex", 19, 24),
+            ("Value", 24, 32),
+            [False, 32, 33],
+            ("Marker", 33, 34),
+            [False, 34, 38],
+        ]
+        self.assertEqual(expected, sequence)
+
+    def test_tag_field_parsing_sequence(self):
+        sequence = ps.tag_field_parsing_sequence(self.tag_fields)
+        expected = [
+            ("Tagname", 0, 255),
+            ("TTagIndex", 255, 260),
+            [False, 260, 263],
+        ]
+        self.assertEqual(expected, sequence)
+
     def test_float_row_parsing_sequence(self):
         row_length = 38
-        first_row_seq = utils.float_field_parsing_sequence_first_row(
+        first_row_seq = ps.float_field_parsing_sequence_first_row(
             self.all_fields
         )
-        later_rows_seq = utils.float_field_parsing_sequence_later_rows(
+        later_rows_seq = ps.float_field_parsing_sequence_later_rows(
             self.all_fields
         )
         results = [
@@ -111,10 +136,15 @@ class TestSkipSequences(unittest.TestCase):
                     (True, row_length - 1, first_row_seq),
                 ],
             ),
-            (([4], [1, 2, 3]), [[False, row_length * 3 - 1, None],]),
+            (
+                ([4], [1, 2, 3]),
+                [
+                    [False, row_length * 3 - 1, None],
+                ],
+            ),
         ]
         for args, result in results:
-            expected = utils.float_row_parsing_sequence(
+            expected = ps.float_row_parsing_sequence(
                 row_length, *args, self.all_fields
             )
             self.assertEqual(expected, result)
