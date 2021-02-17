@@ -2,9 +2,9 @@ from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QAbstractItemView
 
 
-class SearchableListWidget(QtWidgets.QWidget):
+class SearchableList(QtWidgets.QWidget):
     def __init__(self, parent=None, list_name=""):
-        super(SearchableListWidget, self).__init__(parent)
+        super(SearchableList, self).__init__(parent)
         self.search_bar = QtWidgets.QLineEdit()
         self.search_text = (
             f"Search {list_name} ({{}})" if list_name else "Search ({}):"

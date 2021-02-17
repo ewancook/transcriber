@@ -6,7 +6,8 @@ from transcriber.converter.dbfworker import utils
 def collate(collated_file, filenames):
     with open(collated_file, "w") as save_file:
         collate_files(
-            save_file, [utils.transcribed_filename(f) for f in filenames],
+            save_file,
+            [utils.transcribed_filename(f) for f in filenames],
         )
 
 

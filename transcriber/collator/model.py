@@ -24,7 +24,11 @@ class CollatorModel(QtCore.QObject):
     def collate(self, collated_file, filenames):
         self.collation_started.emit()
         self.process = Process(
-            target=utils.collate, args=(collated_file, filenames,)
+            target=utils.collate,
+            args=(
+                collated_file,
+                filenames,
+            ),
         )
         self.process.start()
         self.state = True

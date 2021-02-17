@@ -1,6 +1,7 @@
 import logging
 
 from PyQt5 import QtCore, QtWidgets
+
 from transcriber import utils
 from transcriber.collator.model import CollatorModel
 from transcriber.collator.presenter import Collator
@@ -10,11 +11,13 @@ from transcriber.converter.multiprocessing_model import (
 )
 from transcriber.converter.presenter import Converter
 from transcriber.converter.view import ConverterView
-from transcriber.file_selecter.presenter import FileSelecter
-from transcriber.file_selecter.view import FileSelecterView
-from transcriber.tag_selecter.model import TagSelecterModel
-from transcriber.tag_selecter.presenter import TagSelecter
-from transcriber.tag_selecter.view import TagSelecterView
+from transcriber.widgets import (
+    FileSelecter,
+    FileSelecterView,
+    TagSelecter,
+    TagSelecterModel,
+    TagSelecterView,
+)
 
 
 class Transcriber(QtWidgets.QWidget):

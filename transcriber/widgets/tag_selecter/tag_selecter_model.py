@@ -1,5 +1,5 @@
 from PyQt5 import QtCore
-from transcriber.dbf.new_parser import Parser
+import fastdbf
 
 
 class TagSelecterModel(QtCore.QObject):
@@ -9,14 +9,13 @@ class TagSelecterModel(QtCore.QObject):
     def __init__(self):
         super(TagSelecterModel, self).__init__()
         self.tags = {}
-        self.parser = Parser()
 
     def load(self, filenames):
         for filename in filenames:
             try:
                 self.tags[filename] = [
                     r["Tagname"].decode().strip()
-                    for r in self.parser.parse_tag_file(filename)
+                    for r in fastdbf.parse_tag_file(filename)
                 ]
             except Exception as e:
                 self.loading_error.emit(e)

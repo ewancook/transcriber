@@ -1,5 +1,5 @@
 from PyQt5 import QtCore, QtWidgets
-from transcriber.searchable_list.widget import SearchableListWidget
+from transcriber.widgets import SearchableList
 
 
 class TagSelecterView(QtWidgets.QWidget):
@@ -15,11 +15,11 @@ class TagSelecterView(QtWidgets.QWidget):
         self.load.setFlat(True)
         self.load.setEnabled(False)
 
-        self.tags = SearchableListWidget(self, list_name="All Tags")
+        self.tags = SearchableList(self, list_name="All Tags")
         self.tags.setSelectionMode(
             QtWidgets.QAbstractItemView.ExtendedSelection
         )
-        self.used = SearchableListWidget(self, list_name="Current Tags")
+        self.used = SearchableList(self, list_name="Current Tags")
         self.used.setSelectionMode(
             QtWidgets.QAbstractItemView.ExtendedSelection
         )

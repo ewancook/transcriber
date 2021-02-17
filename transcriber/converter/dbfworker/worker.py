@@ -1,5 +1,5 @@
+import fastdbf
 from transcriber.converter.dbfworker import utils
-from transcriber.dbf.new_parser import Parser
 
 DEFAULT_DECIMAL_PLACES = 8
 
@@ -24,15 +24,12 @@ class Worker:
 class DBFWorker(Worker):
     def __init__(self, **kwargs):
         super(DBFWorker, self).__init__(**kwargs)
-        self.parser = Parser()
         self.required_tag_indices = [
             self.tag_lookup.index(t) for t in self.tags
         ]
 
     def _parse_selection(self, filename):
-        return self.parser.parse_float_file(
-            filename, self.required_tag_indices
-        )
+        return fastdbf.parse_float_file(filename, self.required_tag_indices)
 
     def convert(self):
         table = self._parse_selection(self.filename)

@@ -1,7 +1,7 @@
 import os
 
 from PyQt5 import QtCore, QtWidgets
-from transcriber.searchable_list.widget import SearchableListWidget
+from transcriber.widgets import SearchableList
 
 FLOAT_END = " (Float).DAT"
 TAG_END = " (Tagname).DAT"
@@ -17,26 +17,26 @@ class FileSelecterView(QtWidgets.QWidget):
         self._layout = QtWidgets.QVBoxLayout()
         self.names_to_paths = {}
 
-        self.files = SearchableListWidget(self, list_name="Loaded Files")
+        self.files = SearchableList(self, list_name="Loaded Files")
         self.files.setSelectionMode(
             QtWidgets.QAbstractItemView.ExtendedSelection
         )
-        self.load_folder = QtWidgets.QPushButton("Load Folder", self)
+        self.load_files = QtWidgets.QPushButton("Load Float File(s)", self)
         self.del_file = QtWidgets.QPushButton("Remove", self)
         self.del_file.setEnabled(False)
 
-        self.load_folder.setToolTip(
-            "Select a folder containing files to transcribe. It should include file names ending in '(Float).DAT' and '(Tagname).DAT'."
+        self.load_files.setToolTip(
+            "Select float files to transcribe. File names end in '(Float).DAT'."
         )
         self.del_file.setToolTip(
             "Remove selected files. These will no longer be transcribed."
         )
 
-        self.load_folder.clicked.connect(self.select_folder)
+        self.load_files.clicked.connect(self.select_files)
         self.del_file.clicked.connect(self.del_current)
         self.connect_current_changed(self.enable_deletion)
         self.files.doubleClicked.connect(self.del_current)
-        self._layout.addWidget(self.load_folder)
+        self._layout.addWidget(self.load_files)
         self._layout.addWidget(self.files)
         self._layout.addWidget(self.del_file)
         self.setLayout(self._layout)
@@ -50,28 +50,33 @@ class FileSelecterView(QtWidgets.QWidget):
     def files_loaded(self):
         return self.files.count()
 
-    def select_folder(self):
-        folder = QtWidgets.QFileDialog.getExistingDirectory(
-            parent=self, caption="Load Folder",
+    def select_files(self):
+        filenames, _ = QtWidgets.QFileDialog.getOpenFileNames(
+            parent=self,
+            caption="Select Float File(s) - DAT",
+            filter="DAT (*Float*.DAT)",  # can't use brackets for some reason
         )
-        if folder:
-            self.folder = os.path.basename(folder)
-            self.add_files(folder)
+        if filenames:
+            self.add_files(filenames)
 
-    def add_files(self, folder):
+    def add_files(self, filepaths):
         labels = []
-        filenames = os.listdir(folder)
-        for filename in filenames:
-            if filename.endswith(FLOAT_END):
-                name = "".join(filename.rsplit(FLOAT_END, 1))
-                tag_file = f"{name}{TAG_END}"
-                label = f"{name} ({self.folder})"
-                if tag_file in filenames and label not in self.names_to_paths:
+        for filepath in filepaths:
+            if filepath.endswith(FLOAT_END):
+                folder = os.path.dirname(filepath)
+                filename = "".join(
+                    os.path.basename(filepath).rsplit(FLOAT_END, 1)
+                )
+
+                tag_file_path = filepath.replace(FLOAT_END, TAG_END)
+
+                label = f"{filename} ({folder})"
+                if (
+                    os.path.exists(tag_file_path)
+                    and label not in self.names_to_paths
+                ):
                     labels.append(label)
-                    self.names_to_paths[label] = (
-                        os.path.join(folder, filename),
-                        os.path.join(folder, tag_file),
-                    )
+                    self.names_to_paths[label] = (filename, tag_file_path)
         if labels:
             self.files.addItems(labels)
             self.files_added.emit([self.names_to_paths[l] for l in labels])
