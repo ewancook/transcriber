@@ -61,6 +61,10 @@ def average_rows(table, n_rows, decimal_places):
         return
 
 
+def fast_round(num, precision):
+    return int(num * precision + (0.5 if num > 0 else -0.5)) / precision
+
+
 def generate_csv(table, tags, tag_lookup, decimal_places):
     table = iter(table)
     lines = sorted([tag_lookup.index(t) for t in tags])
@@ -77,12 +81,9 @@ def generate_csv(table, tags, tag_lookup, decimal_places):
             first_column = next(rows)
             date = format_dbf_date(first_column[DATE].decode())
             time = first_column[TIME].decode()
-            value = (
-                int(unpack(first_column[VALUE])[0] * precision + 0.5)
-                / precision
-            )
+            value = fast_round(unpack(first_column[VALUE])[0], precision)
             values = [
-                str(int(unpack(row[VALUE])[0] * precision + 0.5) / precision)
+                str(fast_round(unpack(row[VALUE])[0], precision))
                 for row in rows
             ]
             if not len(values):
