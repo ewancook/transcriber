@@ -1,4 +1,4 @@
 dbfread==2.0.7
 PyQt5==5.14.2
-PyInstaller==3.6
+PyInstaller==5.13.1
 dbf==0.98.3
